@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Creation</title>
+</head>
+<body>
+    <h1>Select Abilities</h1>
+    <p>Allocate skillpoints to Abilities</p>
+    <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
+
+    <ul>
+        {% set order = ["strenght", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+
+        {% for ability in order %}
+            <li>
+                {{ ability }}:
+                <span id="{{ ability }}">{{ character.abilities[ability] }}</span>
+
+                <button onclick="change('{{ ability }}', 'increase')">+</button>
+                <button onclick="change('{{ ability }}', 'decrease')">-</button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
+
+</body>
+</html>
