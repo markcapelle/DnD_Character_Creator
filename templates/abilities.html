@@ -6,23 +6,55 @@
     <title>Character Creation</title>
 </head>
 <body>
-    <h1>Select Abilities</h1>
+    <h1>Create Your Character</h1>
+
+    <h2>Select Race</h2>
+    <label for="race">Race:</label>
+        <select id="race" onchange="selectRace(this.value)">
+        <option value="">-- choose race --</option>
+        <option value="human">Human</option>
+        <option value="elf">Elf</option>
+        <option value="dwarf">Dwarf</option>
+    </select>
+
+    <p id="race-info"></p>
+
+
+    <h2>Set Abilities</h2>
     <p>Allocate skillpoints to Abilities</p>
     <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
 
     <ul>
-        {% set order = ["strenght", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+        {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
 
         {% for ability in order %}
             <li>
                 {{ ability }}:
                 <span id="{{ ability }}">{{ character.abilities[ability] }}</span>
 
+                <span id="{{ ability }}-mod" class="race-mod"></span>
+
                 <button onclick="change('{{ ability }}', 'increase')">+</button>
                 <button onclick="change('{{ ability }}', 'decrease')">-</button>
             </li>
         {% endfor %}
     </ul>
+    
+    <!-- <ul>
+        {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+
+        {% for ability in order %}
+            <li>
+                {{ ability }}:
+                <span id="{{ ability }}">{{ character.abilities[ability] }}</span>
+
+                <span id="{{ ability }}-mod" class="race-mod"></span>
+
+                <button onclick="change('{{ ability }}', 'increase')">+</button>
+                <button onclick="change('{{ ability }}', 'decrease')">-</button>
+            </li>
+        {% endfor %}
+    </ul> -->
 
     <script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
 

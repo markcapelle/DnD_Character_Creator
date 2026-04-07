@@ -11,7 +11,7 @@ class Character:
         self.proficiency = 2 #Proficiency modifier, starts at +2
         
         self.abilities = {
-            "strenght": 0,
+            "strength": 0,
             "dexterity": 0,
             "constitution": 0,
             "intelligence": 0,
@@ -37,6 +37,23 @@ class Character:
         }
 #============ End Character Class ============
 
+RACE_MODIFIERS = {
+    "human": {
+        "strength": 1,
+        "dexterity": 1,
+        "constitution": 1,
+        "intelligence": 1,
+        "wisdom": 1,
+        "charisma": 1
+    },
+    "elf": {
+        "dexterity": 2,
+    },
+    "dwarf": {
+        "constitution": 2,
+    }
+}
+
 
 
 
@@ -52,15 +69,15 @@ def save_character(char_dict):
 
 
 # =======================
-# Render pages
+# ROUTES
 # =======================
 
-@app.route("/")
+@app.route("/") #Render the landing page
 def index():
     character = get_character()
     return render_template("abilities.html", character=character)
 
-@app.route("/increase", methods=["POST"])
+@app.route("/increase", methods=["POST"]) #Increase ability
 def increase():
     ability = request.json.get("ability")
 
@@ -72,7 +89,7 @@ def increase():
 
     return jsonify(char.to_dict())
 
-@app.route("/decrease", methods=["POST"])
+@app.route("/decrease", methods=["POST"]) #Decrease ability
 def decrease():
     ability = request.json.get("ability")
 
@@ -84,6 +101,20 @@ def decrease():
 
     return jsonify(char.to_dict())
 
+@app.route("/select_race", methods=["POST"]) #Store selected race
+def select_race():
+    race = request.json.get("race")
+
+    char = Character()
+    char.__dict__.update(get_character())
+
+    char.race = race #Store selection
+
+    save_character(char.to_dict())
+    return jsonify({
+        "race": race,
+        "modifiers": RACE_MODIFIERS.get(race, {})
+    })
 
 if __name__ == "__main__":
     app.run()
