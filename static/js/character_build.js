@@ -14,6 +14,9 @@ function change(ability, action) {
     })
     .then(r => r.json())
     .then(updateUI);
+
+    checkReady();
+
 }
 
 function selectRace(race) {
@@ -68,6 +71,9 @@ function selectRace(race) {
             ${traitsHTML}
         `;
     });
+
+    checkReady();
+
 }
    
 function selectClass(className) {
@@ -97,8 +103,27 @@ function selectClass(className) {
             <strong>Primary Abilities:</strong> ${primaryList}
         `;
     });
+
+    checkReady();
+
 }
 
+function checkReady() {
+    fetch("/is_ready")
+        .then(r => r.json())
+        .then(data => {
+            console.log("READY CHECK:", data);
 
+            const btn = document.getElementById("next-button");
 
-
+            if (data.ready) {
+                btn.disabled = false;
+                btn.classList.remove("next-disabled");
+                btn.classList.add("next-enabled");
+            } else {
+                btn.disabled = true;
+                btn.classList.remove("next-enabled");
+                btn.classList.add("next-disabled");
+            }
+        });
+}

@@ -1,0 +1,9 @@
+.next-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.next-enabled {
+    opacity: 1;
+    cursor: pointer;
+}

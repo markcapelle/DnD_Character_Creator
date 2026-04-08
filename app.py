@@ -10,6 +10,9 @@ class Character:
         self.points_pool = 27
         self.proficiency = 2 #Proficiency modifier, starts at +2
         
+        self.race = None
+        self.char_class = None
+
         self.abilities = {
             "strength": 0,
             "dexterity": 0,
@@ -33,7 +36,9 @@ class Character:
         return {
             "abilities": self.abilities,
             "points_pool": self.points_pool,
-            "proficiency": self.proficiency
+            "proficiency": self.proficiency,
+            "race": self.race,
+            "char_class": self.char_class
         }
 #============ End Character Class ============
 
@@ -185,7 +190,21 @@ def select_class():
         "hit_die": class_data.get("hit_die", None)
     })
 
+#Check first page is ready to proceed
+@app.route("/is_ready", methods=["GET"])
+def is_ready():
+    char = get_character()
 
+    race_ok = bool(char.get("race"))
+    class_ok = bool(char.get("char_class"))
+    points_ok = char.get("points_pool", 0) == 0
+
+    return jsonify({
+        "ready": race_ok and class_ok and points_ok,
+        "race_ok": race_ok,
+        "class_ok": class_ok,
+        "points_ok": points_ok
+    })
 
 
 
