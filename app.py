@@ -77,6 +77,28 @@ RACES = {
     }
 }
 
+CLASSES = {
+    "fighter": {
+        "description": "Masters of martial combat, skilled with weapons and armor.",
+        "primary_abilities": ["strength", "constitution"],
+        "saving_throws": ["strength", "constitution"],
+        "hit_die": 10
+    },
+
+    "rogue": {
+        "description": "Stealthy experts who excel at precision, agility, and cunning.",
+        "primary_abilities": ["dexterity", "intelligence"],
+        "saving_throws": ["dexterity", "intelligence"],
+        "hit_die": 8
+    },
+
+    "wizard": {
+        "description": "Scholars of arcane magic who rely on intellect and study.",
+        "primary_abilities": ["intelligence"],
+        "saving_throws": ["intelligence", "wisdom"],
+        "hit_die": 6
+    }
+}
 
 
 
@@ -124,7 +146,7 @@ def decrease():
 
     return jsonify(char.to_dict())
 
-@app.route("/select_race", methods=["POST"])
+@app.route("/select_race", methods=["POST"]) #Select and store race
 def select_race():
     race = request.json.get("race")
 
@@ -142,6 +164,32 @@ def select_race():
         "traits": race_data.get("traits", []),
         "modifiers": race_data.get("modifiers", {})
     })
+
+@app.route("/select_class", methods=["POST"]) #Select and store class
+def select_class():
+    class_name = request.json.get("class")
+
+    char = Character()
+    char.__dict__.update(get_character())
+
+    char.char_class = class_name
+    save_character(char.to_dict())
+
+    class_data = CLASSES.get(class_name, {})
+
+    return jsonify({
+        "class": class_name,
+        "description": class_data.get("description", ""),
+        "primary_abilities": class_data.get("primary_abilities", []),
+        "saving_throws": class_data.get("saving_throws", []),
+        "hit_die": class_data.get("hit_die", None)
+    })
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

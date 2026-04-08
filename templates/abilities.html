@@ -20,6 +20,18 @@
     <p id="race-info"></p>
 
 
+    <h2>Select Class</h2>
+    <label for="class-select">Class:</label>
+    <select id="class-select" onchange="selectClass(this.value)">
+        <option value="">-- choose class --</option>
+        <option value="fighter">Fighter</option>
+        <option value="rogue">Rogue</option>
+        <option value="wizard">Wizard</option>
+    </select>
+
+    <p id="class-info"></p>
+
+
     <h2>Set Abilities</h2>
     <p>Allocate skillpoints to Abilities</p>
     <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
@@ -40,22 +52,6 @@
         {% endfor %}
     </ul>
     
-    <!-- <ul>
-        {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
-
-        {% for ability in order %}
-            <li>
-                {{ ability }}:
-                <span id="{{ ability }}">{{ character.abilities[ability] }}</span>
-
-                <span id="{{ ability }}-mod" class="race-mod"></span>
-
-                <button onclick="change('{{ ability }}', 'increase')">+</button>
-                <button onclick="change('{{ ability }}', 'decrease')">-</button>
-            </li>
-        {% endfor %}
-    </ul> -->
-
     <script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
 
 </body>

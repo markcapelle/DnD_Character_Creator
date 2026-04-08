@@ -69,6 +69,36 @@ function selectRace(race) {
         `;
     });
 }
+   
+function selectClass(className) {
+    fetch("/select_class", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ class: className })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const classInfo = document.getElementById("class-info");
+
+        // If no class selected, clear everything and stop
+        if (!data.class) {
+            classInfo.innerHTML = "";
+            return;
+        }
+
+        // Build primary abilities list
+        const primaryList = data.primary_abilities
+            .map(a => a.charAt(0).toUpperCase() + a.slice(1))
+            .join(", ");
+
+        classInfo.innerHTML = `
+            <strong>${data.class.toUpperCase()}</strong><br>
+            ${data.description}<br><br>
+            <strong>Primary Abilities:</strong> ${primaryList}
+        `;
+    });
+}
+
 
 
 
