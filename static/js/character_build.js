@@ -26,20 +26,49 @@ function selectRace(race) {
     .then(data => {
         const mods = data.modifiers;
 
-        // Clear all modifier labels
+        // Update modifier labels
         const abilities = ["strength","dexterity","constitution","intelligence","wisdom","charisma"];
         
         abilities.forEach(a => {
             document.getElementById(a + "-mod").textContent = "";
         });
 
-        // Add new modifier labels
         for (const [ability, bonus] of Object.entries(mods)) {
             const el = document.getElementById(ability + "-mod");
             if (el) {
                 el.textContent = ` (${data.race} + ${bonus})`;
             }
-            
         }
+
+        // Update race info section
+        const raceInfo = document.getElementById("race-info");
+
+        // If no race selected, clear everything and stop
+        if (!data.race) {
+            raceInfo.innerHTML = "";
+            return;
+        }
+
+        // Build traits list only if traits exist
+        let traitsHTML = "";
+        if (data.traits && data.traits.length > 0) {
+            const traitsList = data.traits
+                .map(trait => `<li>${trait}</li>`)
+                .join("");
+
+            traitsHTML = `
+                <strong>Traits:</strong>
+                <ul>${traitsList}</ul>
+            `;
+        }
+
+        raceInfo.innerHTML = `
+            <strong>${data.race.toUpperCase()}</strong><br>
+            ${data.description}<br><br>
+            ${traitsHTML}
+        `;
     });
 }
+
+
+

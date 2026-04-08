@@ -37,20 +37,43 @@ class Character:
         }
 #============ End Character Class ============
 
-RACE_MODIFIERS = {
+RACES = {
     "human": {
-        "strength": 1,
-        "dexterity": 1,
-        "constitution": 1,
-        "intelligence": 1,
-        "wisdom": 1,
-        "charisma": 1
+        "description": "Human description.",
+        "traits": [
+            "Trait#1: traitdescription.",
+            "Trait#2: traitdescription."
+        ],
+        "modifiers": {
+            "strength": 1,
+            "dexterity": 1,
+            "constitution": 1,
+            "intelligence": 1,
+            "wisdom": 1,
+            "charisma": 1
+        }
     },
+
     "elf": {
-        "dexterity": 2,
+        "description": "Elf description.",
+        "traits": [
+            "Trait#1: traitdescription.",
+            "Trait#2: traitdescription."
+        ],
+        "modifiers": {
+            "dexterity": 2
+        }
     },
+
     "dwarf": {
-        "constitution": 2,
+        "description": "dwarf description.",
+        "traits": [
+            "Trait#1: traitdescription.",
+            "Trait#2: traitdescription."
+        ],
+        "modifiers": {
+            "constitution": 2
+        }
     }
 }
 
@@ -101,20 +124,25 @@ def decrease():
 
     return jsonify(char.to_dict())
 
-@app.route("/select_race", methods=["POST"]) #Store selected race
+@app.route("/select_race", methods=["POST"])
 def select_race():
     race = request.json.get("race")
 
     char = Character()
     char.__dict__.update(get_character())
 
-    char.race = race #Store selection
-
+    char.race = race
     save_character(char.to_dict())
+
+    race_data = RACES.get(race, {})
+
     return jsonify({
         "race": race,
-        "modifiers": RACE_MODIFIERS.get(race, {})
+        "description": race_data.get("description", ""),
+        "traits": race_data.get("traits", []),
+        "modifiers": race_data.get("modifiers", {})
     })
+
 
 if __name__ == "__main__":
     app.run()
