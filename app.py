@@ -7,7 +7,7 @@ app.secret_key = "dev-key"
 
 class Character:
     def __init__(self):
-        self.points_pool = 27
+        self.points_pool = 1
         self.proficiency = 2 #Proficiency modifier, starts at +2
         
         self.race = None

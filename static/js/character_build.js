@@ -13,10 +13,10 @@ function change(ability, action) {
         body: JSON.stringify({ ability })
     })
     .then(r => r.json())
-    .then(updateUI);
-
-    checkReady();
-
+    .then(data => {
+        updateUI(data);
+        checkReady();
+    });
 }
 
 function selectRace(race) {
@@ -29,13 +29,13 @@ function selectRace(race) {
     .then(data => {
         const mods = data.modifiers;
 
-        // Update modifier labels
+        // Clear all modifiers
         const abilities = ["strength","dexterity","constitution","intelligence","wisdom","charisma"];
-        
         abilities.forEach(a => {
             document.getElementById(a + "-mod").textContent = "";
         });
 
+        // Apply new modifiers
         for (const [ability, bonus] of Object.entries(mods)) {
             const el = document.getElementById(ability + "-mod");
             if (el) {
@@ -43,25 +43,20 @@ function selectRace(race) {
             }
         }
 
-        // Update race info section
+        // Update race info
         const raceInfo = document.getElementById("race-info");
 
-        // If no race selected, clear everything and stop
         if (!data.race) {
             raceInfo.innerHTML = "";
+            checkReady();
             return;
         }
 
-        // Build traits list only if traits exist
         let traitsHTML = "";
         if (data.traits && data.traits.length > 0) {
-            const traitsList = data.traits
-                .map(trait => `<li>${trait}</li>`)
-                .join("");
-
             traitsHTML = `
                 <strong>Traits:</strong>
-                <ul>${traitsList}</ul>
+                <ul>${data.traits.map(t => `<li>${t}</li>`).join("")}</ul>
             `;
         }
 
@@ -70,11 +65,11 @@ function selectRace(race) {
             ${data.description}<br><br>
             ${traitsHTML}
         `;
+
+        checkReady();   // Run check AFTER backend update
     });
-
-    checkReady();
-
 }
+
    
 function selectClass(className) {
     fetch("/select_class", {
@@ -89,6 +84,7 @@ function selectClass(className) {
         // If no class selected, clear everything and stop
         if (!data.class) {
             classInfo.innerHTML = "";
+            checkReady();
             return;
         }
 
@@ -102,9 +98,10 @@ function selectClass(className) {
             ${data.description}<br><br>
             <strong>Primary Abilities:</strong> ${primaryList}
         `;
+
+        checkReady();
     });
 
-    checkReady();
 
 }
 
