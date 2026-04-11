@@ -124,3 +124,16 @@ function checkReady() {
             }
         });
 }
+
+// Next Button
+document.getElementById("next-button").addEventListener("click", () => {
+    fetch("/commit_character", {
+        method: "POST"
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "/index"; // test commit_character is working
+        }
+    });
+});

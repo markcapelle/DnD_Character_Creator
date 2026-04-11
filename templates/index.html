@@ -3,9 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Character Sheet</title>
 </head>
 <body>
-    
+    <h1>Character Sheet Debug</h1>
+
+    <h2>Race & Class</h2>
+    <p><strong>Race:</strong> {{ sheet.race }}</p>
+    <p><strong>Class:</strong> {{ sheet.class }}</p>
+
+    <h2>Abilities (Final Scores)</h2>
+    <ul>
+        {% for ability, score in sheet.abilities.items() %}
+            <li><strong>{{ ability|capitalize }}:</strong> {{ score }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Ability Modifiers</h2>
+    <ul>
+        {% for ability, mod in sheet.ability_modifiers.items() %}
+            <li><strong>{{ ability|capitalize }} Mod:</strong> {{ mod }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Race Traits</h2>
+    <ul>
+        {% for trait in sheet.traits %}
+            <li>{{ trait }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Class Info</h2>
+    <p><strong>Hit Die:</strong> d{{ sheet.hit_die }}</p>
+    <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
+    <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
+
+    <h2>Descriptions</h2>
+    <p><strong>Race Description:</strong> {{ sheet.description.race }}</p>
+    <p><strong>Class Description:</strong> {{ sheet.description.class }}</p>
+
 </body>
 </html>

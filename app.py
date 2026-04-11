@@ -3,23 +3,24 @@ from flask import Flask, render_template, request, session, jsonify
 app = Flask(__name__)
 app.secret_key = "dev-key"
 
-# app code
 
+# Character class
 class Character:
     def __init__(self):
-        self.points_pool = 1
+        self.points_pool = 1 #for testing set to one. set 27 in production
         self.proficiency = 2 #Proficiency modifier, starts at +2
         
         self.race = None
         self.char_class = None
 
         self.abilities = {
-            "strength": 0,
-            "dexterity": 0,
-            "constitution": 0,
-            "intelligence": 0,
-            "wisdom": 0,
-            "charisma": 0
+            #Testing / set to 0 in production
+            "strength": 10,
+            "dexterity": 10,
+            "constitution": 10,
+            "intelligence": 10,
+            "wisdom": 10,
+            "charisma": 10
         }
     
     def increase(self, ability):
@@ -42,6 +43,9 @@ class Character:
         }
 #============ End Character Class ============
 
+
+
+#============ Libraries ============
 RACES = {
     "human": {
         "description": "Human description.",
@@ -119,13 +123,28 @@ def save_character(char_dict):
 
 
 # =======================
-# ROUTES
+# RENDER Pages
 # =======================
 
 @app.route("/") #Render the landing page
 def index():
     character = get_character()
     return render_template("abilities.html", character=character)
+
+@app.route("/skills")
+def skills():
+    sheet = session.get("character_sheet", {})
+    return render_template("skills.html", sheet=sheet)
+
+@app.route("/index") #Render the finished character sheet
+def home():
+    sheet = session.get("character_sheet", {})
+    return render_template("index.html", sheet=sheet)
+
+
+# =======================
+# ROUTES
+# =======================
 
 @app.route("/increase", methods=["POST"]) #Increase ability
 def increase():
@@ -206,7 +225,50 @@ def is_ready():
         "points_ok": points_ok
     })
 
+#Commit abilities.html to character
+@app.route("/commit_character", methods=["POST"])
+def commit_character():
+    char = get_character()
 
+    race = char.get("race")
+    char_class = char.get("char_class")
+    abilities = char.get("abilities", {})
+
+    # Apply race modifiers
+    race_data = RACES.get(race, {})
+    race_mods = race_data.get("modifiers", {})
+
+    final_abilities = {}
+    for ability, score in abilities.items():
+        final_abilities[ability] = score + race_mods.get(ability, 0)
+
+    # Calculate ability modifiers
+    ability_mods = {}
+    for ability, score in final_abilities.items():
+        ability_mods[ability] = (score - 10) // 2
+
+    # Class data
+    class_data = CLASSES.get(char_class, {})
+
+    # --- Build character sheet ---
+    character_sheet = {
+        "race": race,
+        "class": char_class,
+        "abilities": final_abilities,
+        "ability_modifiers": ability_mods,
+        "hit_die": class_data.get("hit_die"),
+        "primary_abilities": class_data.get("primary_abilities", []),
+        "saving_throws": class_data.get("saving_throws", []),
+        "traits": race_data.get("traits", []),
+        "description": {
+            "race": race_data.get("description", ""),
+            "class": class_data.get("description", "")
+        }
+    }
+
+    session["character_sheet"] = character_sheet
+
+    return jsonify({"success": True})
 
 
 
