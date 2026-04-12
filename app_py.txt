@@ -60,8 +60,7 @@ class Character:
             "points_pool": self.points_pool,
             "proficiency": self.proficiency,
             "race": self.race,
-            "char_class": self.char_class,
-            "skills": self.skills
+            "char_class": self.char_class
         }
 #============ End Character Class ============
 
@@ -372,13 +371,10 @@ def set_skills():
             skills[skill] = True
 
     character["skills"] = skills
-    session["character"] = character
+    session["character_sheet"] = character
 
     print("DEBUG SET_SKILLS:", character["skills"])  # TEMP DEBUG
-    print("RECEIVED FROM FRONTEND:", selected_skills)
 
-
-    session.modified = True
     return {"success": True}
 
 

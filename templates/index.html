@@ -45,5 +45,19 @@
     <p><strong>Race Description:</strong> {{ sheet.description.race }}</p>
     <p><strong>Class Description:</strong> {{ sheet.description.class }}</p>
 
+    <h2>Skills</h2>
+    <ul>
+        {% for skill, bonus in sheet.skills.items() %}
+            <li>
+                <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
+                {{ bonus }}
+                {% if sheet.skill_proficiencies[skill] %}
+                    (Proficient)
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+
 </body>
 </html>
