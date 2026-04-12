@@ -111,7 +111,7 @@ function checkReady() {
         .then(data => {
             console.log("READY CHECK:", data);
 
-            const btn = document.getElementById("next-button");
+            const btn = document.getElementById("abilities-next-button");
 
             if (data.ready) {
                 btn.disabled = false;
@@ -129,15 +129,4 @@ function checkReady() {
 
 
 
-// Next/Back Buttons
-document.getElementById("next-button").addEventListener("click", () => {
-    fetch("/commit_character", {
-        method: "POST"
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = "/skills";
-        }
-    });
-});
+
