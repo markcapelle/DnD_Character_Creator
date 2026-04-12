@@ -6,9 +6,53 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <title>Document</title>
+    <title>Skills</title>
 </head>
 <body>
+    <h1>Select Skill Proficiency</h1>
     
+    <p><strong>Race:</strong> {{ sheet.race }}</p>
+    <p><strong>Class:</strong> {{ sheet.class }}</p>
+
+    <hr>
+
+    <div id="skills-container"
+        data-max-choices="{{ max_choices }}"
+        data-allowed-skills='{{ allowed_skills | tojson }}'>
+
+        {% set abilities = ["strength","dexterity","constitution","intelligence","wisdom","charisma"] %}
+
+        {% for ability in abilities %}
+            <h2>{{ ability|capitalize }} (Mod:
+                {% set mod = sheet.ability_modifiers[ability] %}
+                {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %}
+            )</h2>
+
+            <ul>
+            {% for skill, skill_ability in skills.items() %}
+                {% if skill_ability == ability %}
+                    <li>
+                        <label>
+                            <input type="checkbox"
+                                class="skill-checkbox"
+                                value="{{ skill }}">
+                            {{ skill.replace("_", " ")|capitalize }}
+                            —
+                            {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %}
+                        </label>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+
+        {% endfor %}
+
+    </div>
+    
+    <button id="skills-next-button" disabled class="next-disabled">Next</button>
+
+    <script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/skills.js') }}"></script>
+
 </body>
 </html>

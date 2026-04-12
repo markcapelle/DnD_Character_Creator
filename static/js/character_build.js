@@ -125,7 +125,11 @@ function checkReady() {
         });
 }
 
-// Next Button
+
+
+
+
+// Next/Back Buttons
 document.getElementById("next-button").addEventListener("click", () => {
     fetch("/commit_character", {
         method: "POST"
@@ -133,7 +137,7 @@ document.getElementById("next-button").addEventListener("click", () => {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            window.location.href = "/index"; // test commit_character is working
+            window.location.href = "/skills";
         }
     });
 });

@@ -22,6 +22,27 @@ class Character:
             "wisdom": 10,
             "charisma": 10
         }
+
+        self.skills = {
+            "acrobatics": False,
+            "animal_handling": False,
+            "arcana": False,
+            "athletics": False,
+            "deception": False,
+            "history": False,
+            "insight": False,
+            "intimidation": False,
+            "investigation": False,
+            "medicine": False,
+            "nature": False,
+            "perception": False,
+            "performance": False,
+            "persuasion": False,
+            "religion": False,
+            "sleight_of_hand": False,
+            "stealth": False,
+            "survival": False
+        }
     
     def increase(self, ability):
         if self.points_pool > 0: #If there are points available
@@ -91,7 +112,17 @@ CLASSES = {
         "description": "Masters of martial combat, skilled with weapons and armor.",
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
-        "hit_die": 10
+        "hit_die": 10,
+        "skill_choices": 2,
+        "skill_list": [
+            "acrobatics",
+            "athletics",
+            "history",
+            "insight",
+            "intimidation",
+            "perception",
+            "survival"
+        ]
     },
 
     "rogue": {
@@ -107,6 +138,27 @@ CLASSES = {
         "saving_throws": ["intelligence", "wisdom"],
         "hit_die": 6
     }
+}
+
+SKILLS = {
+    "acrobatics": "dexterity",
+    "animal_handling": "wisdom",
+    "arcana": "intelligence",
+    "athletics": "strength",
+    "deception": "charisma",
+    "history": "intelligence",
+    "insight": "wisdom",
+    "intimidation": "charisma",
+    "investigation": "intelligence",
+    "medicine": "wisdom",
+    "nature": "intelligence",
+    "perception": "wisdom",
+    "performance": "charisma",
+    "persuasion": "charisma",
+    "religion": "intelligence",
+    "sleight_of_hand": "dexterity",
+    "stealth": "dexterity",
+    "survival": "wisdom"
 }
 
 
@@ -134,7 +186,16 @@ def index():
 @app.route("/skills")
 def skills():
     sheet = session.get("character_sheet", {})
-    return render_template("skills.html", sheet=sheet)
+    class_data = CLASSES.get(sheet.get("class"), {})
+
+    return render_template(
+        "skills.html",
+        sheet=sheet,
+        skills=SKILLS,
+        allowed_skills=class_data.get("skill_list", []),
+        max_choices=class_data.get("skill_choices", 0)
+    )
+
 
 @app.route("/index") #Render the finished character sheet
 def home():
