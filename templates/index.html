@@ -36,6 +36,8 @@
         {% endfor %}
     </ul>
 
+
+    
     <h2>Class Info</h2>
     <p><strong>Hit Die:</strong> d{{ sheet.hit_die }}</p>
     <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
@@ -55,6 +57,19 @@
                     (Proficient)
                 {% endif %}
             </li>
+        {% endfor %}
+    </ul>
+
+
+
+    <h2>Background</h2>
+    <p><strong>Background:</strong> {{ sheet.background_name }}</p>
+    <p><strong>Description:</strong> {{ sheet.background_description }}</p>
+
+    <h3>Background Proficiencies</h3>
+    <ul>
+        {% for prof in sheet.background_proficiencies %}
+            <li>{{ prof.replace("_", " ")|capitalize }}</li>
         {% endfor %}
     </ul>
 

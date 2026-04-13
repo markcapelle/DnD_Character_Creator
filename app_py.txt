@@ -12,6 +12,7 @@ class Character:
         
         self.race = None
         self.char_class = None
+        self.background = None
 
         self.abilities = {
             #Testing / set to 0 in production
@@ -54,6 +55,38 @@ class Character:
             self.abilities[ability] -= 1 #Reduce selected ability by 1
             self.points_pool += 1 #Increase available points by 1
 
+    def calculate_modifiers(self):
+        self.modifiers = {}
+        for ability, score in self.abilities.items():
+            self.modifiers[ability] = (score - 10) // 2
+
+    def calculate_skill_bonuses(self):
+        skill_bonuses = {}
+
+        for skill, ability in SKILLS.items():
+            mod = self.modifiers.get(ability, 0)
+            proficient = self.skills.get(skill, False)
+            bonus = mod + (self.proficiency if proficient else 0)
+            skill_bonuses[skill] = bonus
+
+        return skill_bonuses
+
+    def apply_background(self, background_data):
+        for prof in background_data.get("proficiencies", []):
+            self.skills[prof] = True
+
+    @classmethod
+    def from_dict(cls, data):
+        c = cls()
+        c.points_pool = data.get("points_pool", 27)
+        c.proficiency = data.get("proficiency", c.proficiency)
+        c.race = data.get("race")
+        c.char_class = data.get("char_class")
+        c.background = data.get("background")
+        c.abilities = data.get("abilities", {}).copy()
+        c.skills = data.get("skills", {}).copy()
+        return c
+
     def to_dict(self):
         return {
             "abilities": self.abilities,
@@ -61,6 +94,7 @@ class Character:
             "proficiency": self.proficiency,
             "race": self.race,
             "char_class": self.char_class,
+            "background": self.background,
             "skills": self.skills
         }
 #============ End Character Class ============
@@ -162,6 +196,45 @@ SKILLS = {
     "survival": "wisdom"
 }
 
+BACKGROUNDS = {
+    "acolyte": {
+        "name": "Acolyte",
+        "description": "Acolyte description.",
+        "proficiencies": ["insight", "religion"]
+    },
+
+    "criminal": {
+        "name": "Criminal",
+        "description": "Criminal description.",
+        "proficiencies": ["deception", "stealth"]
+    },
+
+    "folk_hero": {
+        "name": "Folk Hero",
+        "description": "Folk Hero description.",
+        "proficiencies": ["animal_handling", "survival"]
+    },
+
+    "noble": {
+        "name": "Noble",
+        "description": "Noble description.",
+        "proficiencies": ["history", "persuasion"]
+    },
+
+    "sage": {
+        "name": "Sage",
+        "description": "Sage description.",
+        "proficiencies": ["arcana", "history"]
+    },
+
+    "soldier": {
+        "name": "Soldier",
+        "description": "Soldier description.",
+        "proficiencies": ["athletics", "intimidation"]
+    }
+}
+
+
 
 
 def get_character():
@@ -184,7 +257,7 @@ def index():
     character = get_character()
     return render_template("abilities.html", character=character)
 
-@app.route("/skills")
+@app.route("/skills") #Render skills selection page
 def skills():
     sheet = session.get("character_sheet", {})
     class_data = CLASSES.get(sheet.get("class"), {})
@@ -196,6 +269,10 @@ def skills():
         allowed_skills=class_data.get("skill_list", []),
         max_choices=class_data.get("skill_choices", 0)
     )
+
+@app.route("/background") #Render the background selection page
+def background():
+    return render_template("background.html", backgrounds=BACKGROUNDS)
 
 @app.route("/index") #Render the finished character sheet
 def home():
@@ -289,50 +366,43 @@ def is_ready():
 #Commit abilities.html to character
 @app.route("/commit_character", methods=["POST"])
 def commit_character():    
-    char = get_character()
-    if not char: # Safety in case character object is null
+    char_data = get_character()
+    if not char_data: #Safety check if char_data is null
         return jsonify({"success": False, "error": "No character in session"})
 
-    race = char.get("race")
-    char_class = char.get("char_class")
-    abilities = char.get("abilities", {})
-    skill_proficiencies = char.get("skills", {})
+    # Rebuild Character object
+    character = Character.from_dict(char_data)
 
     # Apply race modifiers
-    race_data = RACES.get(race, {})
+    race_data = RACES.get(character.race, {})
     race_mods = race_data.get("modifiers", {})
 
     final_abilities = {}
-    for ability, score in abilities.items():
+    for ability, score in character.abilities.items():
         final_abilities[ability] = score + race_mods.get(ability, 0)
 
     # Calculate ability modifiers
-    ability_mods = {}
-    for ability, score in final_abilities.items():
-        ability_mods[ability] = (score - 10) // 2
+    character.abilities = final_abilities
+    character.calculate_modifiers()
 
-    # Calculate skill bonuses
-    skill_proficiencies = char.get("skills", {})
-    proficiency_bonus = char.get("proficiency", 2)
+    # Background data
+    background_key = character.background
+    background_data = BACKGROUNDS.get(background_key, {})
+    character.apply_background(background_data)
 
-    skill_bonuses = {}
-    for skill, ability in SKILLS.items():
-        mod = ability_mods[ability]
-        proficient = skill_proficiencies.get(skill, False)
-        bonus = mod + (proficiency_bonus if proficient else 0)
-        skill_bonuses[skill] = bonus
-
+    # Use Character method for skill bonuses
+    skill_bonuses = character.calculate_skill_bonuses()
 
     # Class data
-    class_data = CLASSES.get(char_class, {})
+    class_data = CLASSES.get(character.char_class, {})
 
     # Build character sheet
     character_sheet = {
-        "race": race,
-        "class": char_class,
+        "race": character.race,
+        "class": character.char_class,
         "abilities": final_abilities,
-        "ability_modifiers": ability_mods,
-        "skill_proficiencies": skill_proficiencies,
+        "ability_modifiers": character.modifiers,
+        "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
         "primary_abilities": class_data.get("primary_abilities", []),
@@ -341,12 +411,18 @@ def commit_character():
         "description": {
             "race": race_data.get("description", ""),
             "class": class_data.get("description", "")
-        }
+        },
+        "background": background_key,
+        "background_name": background_data.get("name", ""),
+        "background_description": background_data.get("description", ""),
+        "background_proficiencies": background_data.get("proficiencies", []),
+
     }
 
-    # Save to session
+    #Save session  
     session["character_sheet"] = character_sheet
     return jsonify({"success": True})
+
 
 
 # Add the skills to the character sheet
@@ -378,6 +454,45 @@ def set_skills():
     print("RECEIVED FROM FRONTEND:", selected_skills)
 
     return {"success": True}
+
+
+
+@app.route("/background_ready")
+def background_ready():
+    char = get_character()
+    if not char:
+        return jsonify({"ready": False})
+
+    background = char["background"] if isinstance(char, dict) else char.background
+
+    return jsonify({"ready": bool(background)})
+
+
+
+@app.route("/set_background", methods=["POST"])
+def set_background():
+    data = request.get_json()
+    selected = data.get("background")
+
+    if not selected or selected not in BACKGROUNDS:
+        return jsonify({"success": False, "error": "Invalid background"})
+
+    char = get_character()
+    if not char:
+        return jsonify({"success": False, "error": "No character in session"})
+
+    # Handle both dict and Character object
+    if isinstance(char, dict):
+        char["background"] = selected
+    else:
+        char.background = selected
+        char = char.to_dict()  # normalize for session storage
+
+    session["character"] = char
+
+    print("SET_BACKGROUND:", get_character())
+
+    return jsonify({"success": True})
 
 
 

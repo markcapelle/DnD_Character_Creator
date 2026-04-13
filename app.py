@@ -12,6 +12,7 @@ class Character:
         
         self.race = None
         self.char_class = None
+        self.background = None
 
         self.abilities = {
             #Testing / set to 0 in production
@@ -59,7 +60,6 @@ class Character:
         for ability, score in self.abilities.items():
             self.modifiers[ability] = (score - 10) // 2
 
-
     def calculate_skill_bonuses(self):
         skill_bonuses = {}
 
@@ -71,6 +71,10 @@ class Character:
 
         return skill_bonuses
 
+    def apply_background(self, background_data):
+        for prof in background_data.get("proficiencies", []):
+            self.skills[prof] = True
+
     @classmethod
     def from_dict(cls, data):
         c = cls()
@@ -78,6 +82,7 @@ class Character:
         c.proficiency = data.get("proficiency", c.proficiency)
         c.race = data.get("race")
         c.char_class = data.get("char_class")
+        c.background = data.get("background")
         c.abilities = data.get("abilities", {}).copy()
         c.skills = data.get("skills", {}).copy()
         return c
@@ -89,6 +94,7 @@ class Character:
             "proficiency": self.proficiency,
             "race": self.race,
             "char_class": self.char_class,
+            "background": self.background,
             "skills": self.skills
         }
 #============ End Character Class ============
@@ -190,6 +196,45 @@ SKILLS = {
     "survival": "wisdom"
 }
 
+BACKGROUNDS = {
+    "acolyte": {
+        "name": "Acolyte",
+        "description": "Acolyte description.",
+        "proficiencies": ["insight", "religion"]
+    },
+
+    "criminal": {
+        "name": "Criminal",
+        "description": "Criminal description.",
+        "proficiencies": ["deception", "stealth"]
+    },
+
+    "folk_hero": {
+        "name": "Folk Hero",
+        "description": "Folk Hero description.",
+        "proficiencies": ["animal_handling", "survival"]
+    },
+
+    "noble": {
+        "name": "Noble",
+        "description": "Noble description.",
+        "proficiencies": ["history", "persuasion"]
+    },
+
+    "sage": {
+        "name": "Sage",
+        "description": "Sage description.",
+        "proficiencies": ["arcana", "history"]
+    },
+
+    "soldier": {
+        "name": "Soldier",
+        "description": "Soldier description.",
+        "proficiencies": ["athletics", "intimidation"]
+    }
+}
+
+
 
 
 def get_character():
@@ -212,7 +257,7 @@ def index():
     character = get_character()
     return render_template("abilities.html", character=character)
 
-@app.route("/skills")
+@app.route("/skills") #Render skills selection page
 def skills():
     sheet = session.get("character_sheet", {})
     class_data = CLASSES.get(sheet.get("class"), {})
@@ -225,10 +270,17 @@ def skills():
         max_choices=class_data.get("skill_choices", 0)
     )
 
-@app.route("/index") #Render the finished character sheet
+@app.route("/background") #Render the background selection page
+def background():
+    return render_template("background.html", backgrounds=BACKGROUNDS)
+
+@app.route("/index")
 def home():
-    sheet = session.get("character_sheet", {})
+    sheet = build_character_sheet()
+    if sheet is None:
+        sheet = {}
     return render_template("index.html", sheet=sheet)
+
 
 
 # =======================
@@ -314,14 +366,12 @@ def is_ready():
         "points_ok": points_ok
     })
 
-#Commit abilities.html to character
-@app.route("/commit_character", methods=["POST"])
-def commit_character():    
+#Build complete character sheet
+def build_character_sheet():
     char_data = get_character()
-    if not char_data: #Safety check if char_data is null
-        return jsonify({"success": False, "error": "No character in session"})
+    if not char_data:
+        return None
 
-    # Rebuild Character object
     character = Character.from_dict(char_data)
 
     # Apply race modifiers
@@ -332,17 +382,20 @@ def commit_character():
     for ability, score in character.abilities.items():
         final_abilities[ability] = score + race_mods.get(ability, 0)
 
-    # Calculate ability modifiers
     character.abilities = final_abilities
     character.calculate_modifiers()
 
-    # Use Character method for skill bonuses
+    # Background
+    background_key = character.background
+    background_data = BACKGROUNDS.get(background_key, {})
+    character.apply_background(background_data)
+
+    # Skills
     skill_bonuses = character.calculate_skill_bonuses()
 
-    # Class data
+    # Class
     class_data = CLASSES.get(character.char_class, {})
 
-    # Build character sheet
     character_sheet = {
         "race": character.race,
         "class": character.char_class,
@@ -357,13 +410,24 @@ def commit_character():
         "description": {
             "race": race_data.get("description", ""),
             "class": class_data.get("description", "")
-        }
+        },
+        "background": background_key,
+        "background_name": background_data.get("name", ""),
+        "background_description": background_data.get("description", ""),
+        "background_proficiencies": background_data.get("proficiencies", []),
     }
 
-    #Save session  
     session["character_sheet"] = character_sheet
-    return jsonify({"success": True})
+    return character_sheet
 
+
+#Commit abilities.html to character
+@app.route("/commit_character", methods=["POST"])
+def commit_character():
+    sheet = build_character_sheet()
+    if sheet is None:
+        return jsonify({"success": False, "error": "No character in session"})
+    return jsonify({"success": True})
 
 
 # Add the skills to the character sheet
@@ -395,6 +459,45 @@ def set_skills():
     print("RECEIVED FROM FRONTEND:", selected_skills)
 
     return {"success": True}
+
+
+
+@app.route("/background_ready")
+def background_ready():
+    char = get_character()
+    if not char:
+        return jsonify({"ready": False})
+
+    background = char["background"] if isinstance(char, dict) else char.background
+
+    return jsonify({"ready": bool(background)})
+
+
+
+@app.route("/set_background", methods=["POST"])
+def set_background():
+    data = request.get_json()
+    selected = data.get("background")
+
+    if not selected or selected not in BACKGROUNDS:
+        return jsonify({"success": False, "error": "Invalid background"})
+
+    char = get_character()
+    if not char:
+        return jsonify({"success": False, "error": "No character in session"})
+
+    # Handle both dict and Character object
+    if isinstance(char, dict):
+        char["background"] = selected
+    else:
+        char.background = selected
+        char = char.to_dict()  # normalize for session storage
+
+    session["character"] = char
+
+    print("SET_BACKGROUND:", get_character())
+
+    return jsonify({"success": True})
 
 
 

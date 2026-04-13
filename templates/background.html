@@ -3,9 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Background</title>
 </head>
 <body>
+    <h1>Select Background</h1>
     
+    <label for="backgroundSelect">Choose a Background:</label>
+    <select id="backgroundSelect" onchange="updateBackgroundInfo()">
+        <option value="">-- Select Background --</option>
+
+        {% for key, bg in backgrounds.items() %}
+            <option value="{{ key }}">{{ bg.name }}</option>
+        {% endfor %}
+    </select>
+
+    <div id="backgroundInfo" style="margin-top: 20px;">
+        <h2>Description</h2>
+        <p id="bgDescription"></p>
+
+        <h2>Proficiencies Granted</h2>
+        <ul id="bgProficiencies"></ul>
+    </div>
+
+
+    <button id="background-back-button">Back</button>
+    <button id="background-next-button" disabled class="next-disabled">Next</button>
+
+    <script>
+        const BACKGROUNDS = JSON.parse('{{ backgrounds | tojson | safe }}');
+    </script>
+
+
+    <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+
 </body>
 </html>

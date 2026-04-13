@@ -45,10 +45,57 @@ if (skillsNext) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                // 4. Show the final sheet
-                window.location.href = "/index";
+                // 4. Move on to background
+                window.location.href = "/background";
             }
         });
+    });
+}
+
+// Background.html Next/Back Buttons
+const backgroundBack = document.getElementById("background-back-button");
+if (backgroundBack) {
+    backgroundBack.addEventListener("click", () => {
+        window.location.href = "/skills";
+    });
+}
+
+const backgroundNext = document.getElementById("background-next-button");
+if (backgroundNext) {
+
+    const select = document.getElementById("backgroundSelect");
+
+    function checkBackgroundReady() {
+        fetch("/background_ready")
+            .then(r => r.json())
+            .then(data => {
+                backgroundNext.disabled = !data.ready;
+                backgroundNext.classList.toggle("next-disabled", !data.ready);
+            });
+    }
+
+    if (select) {
+        select.addEventListener("change", () => {
+            const chosen = select.value;
+
+            if (chosen) {
+                fetch("/set_background", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ background: chosen })
+                }).then(() => checkBackgroundReady());
+            } else {
+                checkBackgroundReady();
+            }
+        });
+    }
+
+    // Initial check
+    checkBackgroundReady();
+
+    // Next button → finalize page
+    backgroundNext.addEventListener("click", () => {
+        window.location.href = "/index";
     });
 }
 
