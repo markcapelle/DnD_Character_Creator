@@ -54,6 +54,34 @@ class Character:
             self.abilities[ability] -= 1 #Reduce selected ability by 1
             self.points_pool += 1 #Increase available points by 1
 
+    def calculate_modifiers(self):
+        self.modifiers = {}
+        for ability, score in self.abilities.items():
+            self.modifiers[ability] = (score - 10) // 2
+
+
+    def calculate_skill_bonuses(self):
+        skill_bonuses = {}
+
+        for skill, ability in SKILLS.items():
+            mod = self.modifiers.get(ability, 0)
+            proficient = self.skills.get(skill, False)
+            bonus = mod + (self.proficiency if proficient else 0)
+            skill_bonuses[skill] = bonus
+
+        return skill_bonuses
+
+    @classmethod
+    def from_dict(cls, data):
+        c = cls()
+        c.points_pool = data.get("points_pool", 27)
+        c.proficiency = data.get("proficiency", c.proficiency)
+        c.race = data.get("race")
+        c.char_class = data.get("char_class")
+        c.abilities = data.get("abilities", {}).copy()
+        c.skills = data.get("skills", {}).copy()
+        return c
+
     def to_dict(self):
         return {
             "abilities": self.abilities,
@@ -289,50 +317,38 @@ def is_ready():
 #Commit abilities.html to character
 @app.route("/commit_character", methods=["POST"])
 def commit_character():    
-    char = get_character()
-    if not char: # Safety in case character object is null
+    char_data = get_character()
+    if not char_data: #Safety check if char_data is null
         return jsonify({"success": False, "error": "No character in session"})
 
-    race = char.get("race")
-    char_class = char.get("char_class")
-    abilities = char.get("abilities", {})
-    skill_proficiencies = char.get("skills", {})
+    # Rebuild Character object
+    character = Character.from_dict(char_data)
 
     # Apply race modifiers
-    race_data = RACES.get(race, {})
+    race_data = RACES.get(character.race, {})
     race_mods = race_data.get("modifiers", {})
 
     final_abilities = {}
-    for ability, score in abilities.items():
+    for ability, score in character.abilities.items():
         final_abilities[ability] = score + race_mods.get(ability, 0)
 
     # Calculate ability modifiers
-    ability_mods = {}
-    for ability, score in final_abilities.items():
-        ability_mods[ability] = (score - 10) // 2
+    character.abilities = final_abilities
+    character.calculate_modifiers()
 
-    # Calculate skill bonuses
-    skill_proficiencies = char.get("skills", {})
-    proficiency_bonus = char.get("proficiency", 2)
-
-    skill_bonuses = {}
-    for skill, ability in SKILLS.items():
-        mod = ability_mods[ability]
-        proficient = skill_proficiencies.get(skill, False)
-        bonus = mod + (proficiency_bonus if proficient else 0)
-        skill_bonuses[skill] = bonus
-
+    # Use Character method for skill bonuses
+    skill_bonuses = character.calculate_skill_bonuses()
 
     # Class data
-    class_data = CLASSES.get(char_class, {})
+    class_data = CLASSES.get(character.char_class, {})
 
     # Build character sheet
     character_sheet = {
-        "race": race,
-        "class": char_class,
+        "race": character.race,
+        "class": character.char_class,
         "abilities": final_abilities,
-        "ability_modifiers": ability_mods,
-        "skill_proficiencies": skill_proficiencies,
+        "ability_modifiers": character.modifiers,
+        "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
         "primary_abilities": class_data.get("primary_abilities", []),
@@ -344,9 +360,10 @@ def commit_character():
         }
     }
 
-    # Save to session
+    #Save session  
     session["character_sheet"] = character_sheet
     return jsonify({"success": True})
+
 
 
 # Add the skills to the character sheet
@@ -377,8 +394,6 @@ def set_skills():
     print("DEBUG SET_SKILLS:", character["skills"])  # TEMP DEBUG
     print("RECEIVED FROM FRONTEND:", selected_skills)
 
-
-    session.modified = True
     return {"success": True}
 
 
