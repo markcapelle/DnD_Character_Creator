@@ -287,6 +287,11 @@ def home():
         sheet = {}
     return render_template("index.html", sheet=sheet)
 
+@app.route("/dice")
+def dice():
+    return render_template("dice.html")
+
+
 
 
 # =======================

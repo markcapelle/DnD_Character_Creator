@@ -99,3 +99,15 @@ if (backgroundNext) {
     });
 }
 
+
+
+
+
+// Open dice button
+function openDice() {
+    window.open(
+        "/dice", 
+        "diceWindow",
+        "width=400,height=500,resizable=yes"
+    );
+}

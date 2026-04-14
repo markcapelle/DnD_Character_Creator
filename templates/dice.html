@@ -3,9 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dice</title>
 </head>
 <body>
+    <h1>Dice</h1>
+
+    <label for="dice-count">Number of dice:</label>
+    <select id="dice-count">
+        {% for i in range(1, 11) %}
+            <option value="{{ i }}">{{ i }}</option>
+        {% endfor %}
+    </select>
     
+    <button onclick="rollDice(4)">d4</button>
+    <button onclick="rollDice(6)">d6</button>
+    <button onclick="rollDice(8)">d8</button>
+    <button onclick="rollDice(10)">d10</button>
+    <button onclick="rollDice(12)">d12</button>
+    <button onclick="rollDice(20)">d20</button>
+    <button onclick="rollDice(100)">d100</button>
+    
+
+    <div id="dice-output"></div>
+
+
+
+
+    <script src="{{ url_for('static', filename='js/dice.js') }}"></script>
 </body>
 </html>
