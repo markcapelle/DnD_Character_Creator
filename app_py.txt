@@ -255,7 +255,7 @@ def save_character(char_dict):
 @app.route("/") #Render the landing page
 def index():
     character = get_character()
-    return render_template("abilities.html", character=character)
+    return render_template("abilities.html", character=character, races=RACES, classes=CLASSES)
 
 @app.route("/skills") #Render skills selection page
 def skills():
@@ -274,10 +274,13 @@ def skills():
 def background():
     return render_template("background.html", backgrounds=BACKGROUNDS)
 
-@app.route("/index") #Render the finished character sheet
+@app.route("/index")
 def home():
-    sheet = session.get("character_sheet", {})
+    sheet = build_character_sheet()
+    if sheet is None:
+        sheet = {}
     return render_template("index.html", sheet=sheet)
+
 
 
 # =======================
@@ -363,14 +366,12 @@ def is_ready():
         "points_ok": points_ok
     })
 
-#Commit abilities.html to character
-@app.route("/commit_character", methods=["POST"])
-def commit_character():    
+#Build complete character sheet
+def build_character_sheet():
     char_data = get_character()
-    if not char_data: #Safety check if char_data is null
-        return jsonify({"success": False, "error": "No character in session"})
+    if not char_data:
+        return None
 
-    # Rebuild Character object
     character = Character.from_dict(char_data)
 
     # Apply race modifiers
@@ -381,22 +382,20 @@ def commit_character():
     for ability, score in character.abilities.items():
         final_abilities[ability] = score + race_mods.get(ability, 0)
 
-    # Calculate ability modifiers
     character.abilities = final_abilities
     character.calculate_modifiers()
 
-    # Background data
+    # Background
     background_key = character.background
     background_data = BACKGROUNDS.get(background_key, {})
     character.apply_background(background_data)
 
-    # Use Character method for skill bonuses
+    # Skills
     skill_bonuses = character.calculate_skill_bonuses()
 
-    # Class data
+    # Class
     class_data = CLASSES.get(character.char_class, {})
 
-    # Build character sheet
     character_sheet = {
         "race": character.race,
         "class": character.char_class,
@@ -416,13 +415,19 @@ def commit_character():
         "background_name": background_data.get("name", ""),
         "background_description": background_data.get("description", ""),
         "background_proficiencies": background_data.get("proficiencies", []),
-
     }
 
-    #Save session  
     session["character_sheet"] = character_sheet
-    return jsonify({"success": True})
+    return character_sheet
 
+
+#Commit abilities.html to character
+@app.route("/commit_character", methods=["POST"])
+def commit_character():
+    sheet = build_character_sheet()
+    if sheet is None:
+        return jsonify({"success": False, "error": "No character in session"})
+    return jsonify({"success": True})
 
 
 # Add the skills to the character sheet

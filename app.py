@@ -104,6 +104,7 @@ class Character:
 #============ Libraries ============
 RACES = {
     "human": {
+        "name": "Human",
         "description": "Human description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -120,6 +121,7 @@ RACES = {
     },
 
     "elf": {
+        "name": "Elf",
         "description": "Elf description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -131,6 +133,7 @@ RACES = {
     },
 
     "dwarf": {
+        "name": "Dwarf",
         "description": "dwarf description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -144,6 +147,7 @@ RACES = {
 
 CLASSES = {
     "fighter": {
+        "name": "Fighter",
         "description": "Masters of martial combat, skilled with weapons and armor.",
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
@@ -161,6 +165,7 @@ CLASSES = {
     },
 
     "rogue": {
+        "name": "Rogue",
         "description": "Stealthy experts who excel at precision, agility, and cunning.",
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
@@ -168,6 +173,7 @@ CLASSES = {
     },
 
     "wizard": {
+        "name": "Wizard",
         "description": "Scholars of arcane magic who rely on intellect and study.",
         "primary_abilities": ["intelligence"],
         "saving_throws": ["intelligence", "wisdom"],
@@ -255,7 +261,7 @@ def save_character(char_dict):
 @app.route("/") #Render the landing page
 def index():
     character = get_character()
-    return render_template("abilities.html", character=character)
+    return render_template("abilities.html", character=character, races=RACES, classes=CLASSES)
 
 @app.route("/skills") #Render skills selection page
 def skills():
@@ -324,7 +330,7 @@ def select_race():
     race_data = RACES.get(race, {})
 
     return jsonify({
-        "race": race,
+        "race": race_data.get("name", ""),
         "description": race_data.get("description", ""),
         "traits": race_data.get("traits", []),
         "modifiers": race_data.get("modifiers", {})
@@ -343,7 +349,7 @@ def select_class():
     class_data = CLASSES.get(class_name, {})
 
     return jsonify({
-        "class": class_name,
+        "class": class_data.get("name", ""),
         "description": class_data.get("description", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
@@ -397,8 +403,8 @@ def build_character_sheet():
     class_data = CLASSES.get(character.char_class, {})
 
     character_sheet = {
-        "race": character.race,
-        "class": character.char_class,
+        "race": race_data.get("name", ""),
+        "class": class_data.get("name", ""),
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,

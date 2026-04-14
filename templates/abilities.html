@@ -13,23 +13,23 @@
 
     <h2>Select Race</h2>
     <label for="race">Race:</label>
-        <select id="race" onchange="selectRace(this.value)">
+    <select id="race" onchange="selectRace(this.value)">
         <option value="">-- choose race --</option>
-        <option value="human">Human</option>
-        <option value="elf">Elf</option>
-        <option value="dwarf">Dwarf</option>
+        {% for key, race in races.items() %}
+            <option value="{{ key }}">{{ race.name }}</option>
+        {% endfor %}
     </select>
 
     <p id="race-info"></p>
 
 
     <h2>Select Class</h2>
-    <label for="class-select">Class:</label>
-    <select id="class-select" onchange="selectClass(this.value)">
+    <label for="class">Class:</label>
+    <select id="class" onchange="selectClass(this.value)">
         <option value="">-- choose class --</option>
-        <option value="fighter">Fighter</option>
-        <option value="rogue">Rogue</option>
-        <option value="wizard">Wizard</option>
+        {% for key, cls in classes.items() %}
+            <option value="{{ key }}">{{ cls.name }}</option>
+        {% endfor %}
     </select>
 
     <p id="class-info"></p>
