@@ -402,6 +402,11 @@ def build_character_sheet():
     # Class
     class_data = CLASSES.get(character.char_class, {})
 
+    # Calculate hit points
+    hit_die = class_data.get("hit_die", 0)
+    con_mod = character.modifiers.get("constitution", 0)
+    max_hp = hit_die + con_mod
+
     character_sheet = {
         "race": race_data.get("name", ""),
         "class": class_data.get("name", ""),
@@ -410,6 +415,8 @@ def build_character_sheet():
         "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
+        "max_hp": max_hp,
+        "current_hp": max_hp,
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
         "traits": race_data.get("traits", []),

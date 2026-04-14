@@ -14,6 +14,11 @@
     <h2>Race & Class</h2>
     <p><strong>Race:</strong> {{ sheet.race }}</p>
     <p><strong>Class:</strong> {{ sheet.class }}</p>
+    
+    <div>
+        <h3>Hit Points</h3> 
+        <p>HP: {{ sheet.max_hp }} </p>
+    </div>
 
     <h2>Abilities (Final Scores)</h2>
     <ul>
@@ -72,7 +77,6 @@
             <li>{{ prof.replace("_", " ")|capitalize }}</li>
         {% endfor %}
     </ul>
-
 
 </body>
 </html>
