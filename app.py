@@ -330,7 +330,7 @@ def select_race():
     race_data = RACES.get(race, {})
 
     return jsonify({
-        "race": race_data.get("name", ""),
+        "race": race,
         "description": race_data.get("description", ""),
         "traits": race_data.get("traits", []),
         "modifiers": race_data.get("modifiers", {})
@@ -349,7 +349,7 @@ def select_class():
     class_data = CLASSES.get(class_name, {})
 
     return jsonify({
-        "class": class_data.get("name", ""),
+        "class": class_name,
         "description": class_data.get("description", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
@@ -408,8 +408,10 @@ def build_character_sheet():
     max_hp = hit_die + con_mod
 
     character_sheet = {
-        "race": race_data.get("name", ""),
-        "class": class_data.get("name", ""),
+        "race": character.race,
+        "race_name": race_data.get("name", ""),
+        "class": character.char_class,
+        "class_name": class_data.get("name", ""),
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
