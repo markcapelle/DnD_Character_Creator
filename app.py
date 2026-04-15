@@ -155,6 +155,7 @@ CLASSES = {
         "skill_choices": 2,
         "skill_list": [
             "acrobatics",
+            "animal_handling",
             "athletics",
             "history",
             "insight",
@@ -169,7 +170,21 @@ CLASSES = {
         "description": "Stealthy experts who excel at precision, agility, and cunning.",
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
-        "hit_die": 8
+        "hit_die": 8,
+        "skill_choices": 4,
+        "skill_list": [
+            "acrobatics",
+            "athletics",
+            "deception",
+            "insight",
+            "intimidation",
+            "investigation",
+            "perception",
+            "performance",
+            "persuasion",
+            "sleight_of_hand",
+            "stealth"
+        ]
     },
 
     "wizard": {
@@ -177,7 +192,16 @@ CLASSES = {
         "description": "Scholars of arcane magic who rely on intellect and study.",
         "primary_abilities": ["intelligence"],
         "saving_throws": ["intelligence", "wisdom"],
-        "hit_die": 6
+        "hit_die": 6,
+        "skill_choices": 2,
+        "skill_list": [
+            "arcana",
+            "history",
+            "insight",
+            "investigation",
+            "medicine",
+            "religion",
+        ]
     }
 }
 

@@ -27,7 +27,7 @@
 }
 
 .hitdie-box.active {
-    background-color: #4a90e2;
+    background-color: green;
 }
 
 #deathroll-tracker {
