@@ -461,6 +461,7 @@ def select_class():
     return jsonify({
         "class": class_name,
         "description": class_data.get("description", ""),
+        "class_features": class_data.get("class_features", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
         "hit_die": class_data.get("hit_die", None),
@@ -537,6 +538,7 @@ def build_character_sheet():
         "race_name": race_data.get("name", ""),
         "class": character.char_class,
         "class_name": class_data.get("name", ""),
+        "class_features": class_data.get("class_features", ""),
         "spellcaster": class_data.get("spellcaster", False),
         "spellbook": class_data.get("spellbook", None),
         "spell_slots_used": 0,

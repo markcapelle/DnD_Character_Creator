@@ -93,16 +93,34 @@ function selectClass(className) {
             .map(a => a.charAt(0).toUpperCase() + a.slice(1))
             .join(", ");
 
+        // Build class features block
+        let featuresHTML = "";
+        if (data.class_features) {
+            if (Array.isArray(data.class_features)) {
+                featuresHTML = `
+                    <strong>Class Features:</strong>
+                    <ul>${data.class_features.map(f => `<li>${f}</li>`).join("")}</ul>
+                `;
+            } else {
+                featuresHTML = `
+                    <strong>Class Features:</strong>
+                    <p>${data.class_features}</p>
+                `;
+            }
+        }
+
+        // Final HTML block
         classInfo.innerHTML = `
             <strong>${data.class.toUpperCase()}</strong><br>
             ${data.description}<br><br>
-            <strong>Primary Abilities:</strong> ${primaryList}
+
+            <strong>Primary Abilities:</strong> ${primaryList}<br><br>
+
+            ${featuresHTML}
         `;
 
         checkReady();
     });
-
-
 }
 
 function checkReady() {

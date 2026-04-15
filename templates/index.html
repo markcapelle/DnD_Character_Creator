@@ -75,6 +75,16 @@
     <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
     <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
 
+    <div id="class-features">
+        <h3>Class Features</h3>
+        <ul>
+            {% for feature in sheet.class_features %}
+                <li>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
     {% if sheet.spellcaster %}
     <div id="spellcasting-stats">
         <h3>Spellcasting</h3>
