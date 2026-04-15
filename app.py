@@ -519,8 +519,23 @@ def set_background():
 
     return jsonify({"success": True})
 
+# Adjust character health
+@app.route("/hp/<action>", methods=["POST"])
+def modify_hp(action):
+    sheet = session.get("character_sheet", {})
 
+    current = sheet.get("current_hp", 0)
+    max_hp = sheet.get("max_hp", 0)
 
+    if action == "up":
+        current = min(current + 1, max_hp)
+    elif action == "down":
+        current = max(current - 1, 0)
+
+    sheet["current_hp"] = current
+    session["character_sheet"] = sheet
+
+    return {"current_hp": current, "max_hp": max_hp}
 
 
 if __name__ == "__main__":

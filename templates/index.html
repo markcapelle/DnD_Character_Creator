@@ -17,7 +17,11 @@
     
     <div>
         <h3>Hit Points</h3> 
-        <p>HP: {{ sheet.max_hp }} </p>
+        <div class="hp-controls">
+            <button onclick="changeHP('down')">-</button>
+            <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
+            <button onclick="changeHP('up')">+</button>
+        </div>
     </div>
 
     <h2>Abilities (Final Scores)</h2>
@@ -81,5 +85,6 @@
     <button id="dice-button" onclick="openDice()">Dice</button>
 
     <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/adjust_hp.js') }}"></script>
 </body>
 </html>
