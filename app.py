@@ -422,6 +422,7 @@ def build_character_sheet():
         "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
+        "hit_dice_used": 0,
         "max_hp": max_hp,
         "current_hp": max_hp,
         "primary_abilities": class_data.get("primary_abilities", []),
@@ -536,6 +537,22 @@ def modify_hp(action):
     session["character_sheet"] = sheet
 
     return {"current_hp": current, "max_hp": max_hp}
+
+# Track the character's hit dice useage
+@app.route("/hitdice/update", methods=["POST"])
+def update_hitdice():
+    sheet = session.get("character_sheet", {})
+
+    count = int(request.json.get("count", 0))
+    # clamp between 0 and 3 for now — or use sheet["level"] later
+    count = max(0, min(count, 3))
+
+    sheet["hit_dice_used"] = count
+    session["character_sheet"] = sheet
+
+    return {"hit_dice_used": count}
+
+
 
 
 if __name__ == "__main__":

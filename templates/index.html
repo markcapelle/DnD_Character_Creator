@@ -16,11 +16,18 @@
     <p><strong>Class:</strong> {{ sheet.class_name }}</p>
     
     <div>
-        <h3>Hit Points</h3> 
         <div class="hp-controls">
+            <h3>Hit Points</h3> 
             <button onclick="changeHP('down')">-</button>
             <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
             <button onclick="changeHP('up')">+</button>
+        </div>
+
+        <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
+            <label>Hit Dice Used:</label>
+            <div class="hitdie-box" data-index="1"></div>
+            <div class="hitdie-box" data-index="2"></div>
+            <div class="hitdie-box" data-index="3"></div>
         </div>
     </div>
 
@@ -85,6 +92,6 @@
     <button id="dice-button" onclick="openDice()">Dice</button>
 
     <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/adjust_hp.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/character_management.js') }}"></script>
 </body>
 </html>
