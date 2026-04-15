@@ -162,7 +162,9 @@ CLASSES = {
             "intimidation",
             "perception",
             "survival"
-        ]
+        ],
+        "spellcaster": False,
+        "spellbook": None
     },
 
     "rogue": {
@@ -184,7 +186,9 @@ CLASSES = {
             "persuasion",
             "sleight_of_hand",
             "stealth"
-        ]
+        ],
+        "spellcaster": False,
+        "spellbook": None
     },
 
     "wizard": {
@@ -201,7 +205,9 @@ CLASSES = {
             "investigation",
             "medicine",
             "religion",
-        ]
+        ],
+        "spellcaster": True,
+        "spellbook": "WIZARD_SPELLBOOK"
     }
 }
 
@@ -266,6 +272,47 @@ BACKGROUNDS = {
 
 
 
+# Spellbook libraries
+WIZARD_SPELLBOOK = {
+    "cantrips": [
+        {
+            "name": "Fire Bolt",
+            "description": "You hurl a mote of fire at a creature or object within range.",
+            "casting_time": "1 action",
+            "range": "120 feet",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        },
+        {
+            "name": "Mage Hand",
+            "description": "A spectral, floating hand appears at a point you choose within range.",
+            "casting_time": "1 action",
+            "range": "30 feet",
+            "components": "V, S",
+            "duration": "1 minute"
+        }
+    ],
+    "level_1": [
+        {
+            "name": "Magic Missile",
+            "description": "You create three glowing darts of magical force.",
+            "casting_time": "1 action",
+            "range": "120 feet",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        },
+        {
+            "name": "Shield",
+            "description": "An invisible barrier of magical force appears and protects you.",
+            "casting_time": "1 reaction",
+            "range": "Self",
+            "components": "V, S",
+            "duration": "1 round"
+        }
+    ]
+}
+
+
 
 def get_character():
     if "character" not in session:
@@ -315,7 +362,15 @@ def home():
 def dice():
     return render_template("dice.html")
 
+@app.route("/spellbook")
+def spellbook_page():
+    sheet = session.get("character_sheet", {})
+    spellbook_name = sheet.get("spellbook")
 
+    # Load the correct spellbook dict
+    spellbook = globals().get(spellbook_name, {})
+
+    return render_template("spellbook.html", spellbook=spellbook)
 
 
 # =======================
@@ -382,7 +437,9 @@ def select_class():
         "description": class_data.get("description", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
-        "hit_die": class_data.get("hit_die", None)
+        "hit_die": class_data.get("hit_die", None),
+        "spellcaster": class_data.get("spellcaster", False),
+        "spellbook": class_data.get("spellbook", None)
     })
 
 #Check first page is ready to proceed
@@ -441,6 +498,8 @@ def build_character_sheet():
         "race_name": race_data.get("name", ""),
         "class": character.char_class,
         "class_name": class_data.get("name", ""),
+        "spellcaster": class_data.get("spellcaster", False),
+        "spellbook": class_data.get("spellbook", None),
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
@@ -589,6 +648,11 @@ def update_deathroll():
     session["character_sheet"] = sheet
 
     return {"death_rolls": count}
+
+
+
+
+
 
 
 if __name__ == "__main__":

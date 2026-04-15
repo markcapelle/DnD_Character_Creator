@@ -86,3 +86,4 @@ function updateDeathRollUI(count) {
         box.classList.toggle("active", index <= count);
     });
 }
+

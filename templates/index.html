@@ -11,6 +11,8 @@
 <body>
     <h1>Character Sheet Debug</h1>
 
+    <button id="dice-button" onclick="openDice()">Dice</button>
+
     <h2>Race & Class</h2>
     <p><strong>Race:</strong> {{ sheet.race_name }}</p>
     <p><strong>Class:</strong> {{ sheet.class_name }}</p>
@@ -65,6 +67,16 @@
     <p><strong>Hit Die:</strong> d{{ sheet.hit_die }}</p>
     <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
     <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
+    
+    <div id="spellcasting-data"
+        data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
+        data-spellbook="{{ sheet.spellbook }}"
+        data-primary="{{ sheet.primary_abilities }}">
+    </div>
+    <button id="open-spellbook" style="display:none;">Spellbook</button>
+
+
+
 
     <h2>Descriptions</h2>
     <p><strong>Race Description:</strong> {{ sheet.description.race }}</p>
@@ -96,7 +108,8 @@
         {% endfor %}
     </ul>
 
-    <button id="dice-button" onclick="openDice()">Dice</button>
+
+
 
     <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
     <script src="{{ url_for('static', filename='js/character_management.js') }}"></script>

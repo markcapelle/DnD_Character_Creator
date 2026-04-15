@@ -111,3 +111,32 @@ function openDice() {
         "width=400,height=500,resizable=yes"
     );
 }
+
+
+
+
+// If the class is a spellcaster, reveal spellbook button.
+document.addEventListener("DOMContentLoaded", () => {
+    const spellData = document.getElementById("spellcasting-data");
+    if (!spellData) return;  // <-- prevents errors on pages without spellcasting data
+
+    const isSpellcaster = spellData.dataset.spellcaster.toLowerCase() === "true";
+    const spellbookName = spellData.dataset.spellbook;
+    const primaryAbility = spellData.dataset.primary;
+
+    const btn = document.getElementById("open-spellbook");
+    const windowEl = document.getElementById("spellbook-window");
+    const contentEl = document.getElementById("spellbook-content");
+
+    if (isSpellcaster) {
+        btn.style.display = "inline-block";
+    }
+
+    btn.addEventListener("click", () => {
+        window.open(
+            "/spellbook",
+            "SpellbookWindow",
+            "width=650,height=600,resizable=yes"
+        );
+    });
+});

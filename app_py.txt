@@ -104,6 +104,7 @@ class Character:
 #============ Libraries ============
 RACES = {
     "human": {
+        "name": "Human",
         "description": "Human description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -120,6 +121,7 @@ RACES = {
     },
 
     "elf": {
+        "name": "Elf",
         "description": "Elf description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -131,6 +133,7 @@ RACES = {
     },
 
     "dwarf": {
+        "name": "Dwarf",
         "description": "dwarf description.",
         "traits": [
             "Trait#1: traitdescription.",
@@ -144,6 +147,7 @@ RACES = {
 
 CLASSES = {
     "fighter": {
+        "name": "Fighter",
         "description": "Masters of martial combat, skilled with weapons and armor.",
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
@@ -151,27 +155,59 @@ CLASSES = {
         "skill_choices": 2,
         "skill_list": [
             "acrobatics",
+            "animal_handling",
             "athletics",
             "history",
             "insight",
             "intimidation",
             "perception",
             "survival"
-        ]
+        ],
+        "spellcaster": False,
+        "spellbook": None
     },
 
     "rogue": {
+        "name": "Rogue",
         "description": "Stealthy experts who excel at precision, agility, and cunning.",
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
-        "hit_die": 8
+        "hit_die": 8,
+        "skill_choices": 4,
+        "skill_list": [
+            "acrobatics",
+            "athletics",
+            "deception",
+            "insight",
+            "intimidation",
+            "investigation",
+            "perception",
+            "performance",
+            "persuasion",
+            "sleight_of_hand",
+            "stealth"
+        ],
+        "spellcaster": False,
+        "spellbook": None
     },
 
     "wizard": {
+        "name": "Wizard",
         "description": "Scholars of arcane magic who rely on intellect and study.",
         "primary_abilities": ["intelligence"],
         "saving_throws": ["intelligence", "wisdom"],
-        "hit_die": 6
+        "hit_die": 6,
+        "skill_choices": 2,
+        "skill_list": [
+            "arcana",
+            "history",
+            "insight",
+            "investigation",
+            "medicine",
+            "religion",
+        ],
+        "spellcaster": True,
+        "spellbook": "WIZARD_SPELLBOOK"
     }
 }
 
@@ -236,6 +272,47 @@ BACKGROUNDS = {
 
 
 
+# Spellbook libraries
+WIZARD_SPELLBOOK = {
+    "cantrips": [
+        {
+            "name": "Fire Bolt",
+            "description": "You hurl a mote of fire at a creature or object within range.",
+            "casting_time": "1 action",
+            "range": "120 feet",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        },
+        {
+            "name": "Mage Hand",
+            "description": "A spectral, floating hand appears at a point you choose within range.",
+            "casting_time": "1 action",
+            "range": "30 feet",
+            "components": "V, S",
+            "duration": "1 minute"
+        }
+    ],
+    "level_1": [
+        {
+            "name": "Magic Missile",
+            "description": "You create three glowing darts of magical force.",
+            "casting_time": "1 action",
+            "range": "120 feet",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        },
+        {
+            "name": "Shield",
+            "description": "An invisible barrier of magical force appears and protects you.",
+            "casting_time": "1 reaction",
+            "range": "Self",
+            "components": "V, S",
+            "duration": "1 round"
+        }
+    ]
+}
+
+
 
 def get_character():
     if "character" not in session:
@@ -280,6 +357,11 @@ def home():
     if sheet is None:
         sheet = {}
     return render_template("index.html", sheet=sheet)
+
+@app.route("/dice")
+def dice():
+    return render_template("dice.html")
+
 
 
 
@@ -347,7 +429,9 @@ def select_class():
         "description": class_data.get("description", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
-        "hit_die": class_data.get("hit_die", None)
+        "hit_die": class_data.get("hit_die", None),
+        "spellcaster": class_data.get("spellcaster", False),
+        "spellbook": class_data.get("spellbook", None)
     })
 
 #Check first page is ready to proceed
@@ -396,14 +480,27 @@ def build_character_sheet():
     # Class
     class_data = CLASSES.get(character.char_class, {})
 
+    # Calculate hit points
+    hit_die = class_data.get("hit_die", 0)
+    con_mod = character.modifiers.get("constitution", 0)
+    max_hp = hit_die + con_mod
+
     character_sheet = {
         "race": character.race,
+        "race_name": race_data.get("name", ""),
         "class": character.char_class,
+        "class_name": class_data.get("name", ""),
+        "spellcaster": class_data.get["spellcaster"],
+        "spellbook": class_data["spellbook"],
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
+        "hit_dice_used": 0,
+        "death_rolls": 0,
+        "max_hp": max_hp,
+        "current_hp": max_hp,
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
         "traits": race_data.get("traits", []),
@@ -498,6 +595,64 @@ def set_background():
     print("SET_BACKGROUND:", get_character())
 
     return jsonify({"success": True})
+
+# Adjust character health
+@app.route("/hp/<action>", methods=["POST"])
+def modify_hp(action):
+    sheet = session.get("character_sheet", {})
+
+    current = sheet.get("current_hp", 0)
+    max_hp = sheet.get("max_hp", 0)
+
+    if action == "up":
+        current = min(current + 1, max_hp)
+    elif action == "down":
+        current = max(current - 1, 0)
+
+    sheet["current_hp"] = current
+    session["character_sheet"] = sheet
+
+    return {"current_hp": current, "max_hp": max_hp}
+
+# Track the character's hit dice useage.
+@app.route("/hitdice/update", methods=["POST"])
+def update_hitdice():
+    sheet = session.get("character_sheet", {})
+
+    count = int(request.json.get("count", 0))
+    # clamp between 0 and 3 for now — can be scaled for levels
+    count = max(0, min(count, 3))
+
+    sheet["hit_dice_used"] = count
+    session["character_sheet"] = sheet
+
+    return {"hit_dice_used": count}
+
+# Track the character's death rolls.
+@app.route("/deathroll/update", methods=["POST"])
+def update_deathroll():
+    sheet = session.get("character_sheet", {})
+
+    count = int(request.json.get("count", 0))
+    count = max(0, min(count, 3))  # clamp 0–3 - max amount of death rolls is always 3.
+
+    sheet["death_rolls"] = count
+    session["character_sheet"] = sheet
+
+    return {"death_rolls": count}
+
+
+
+@app.route("/spellbook/<name>")
+def get_spellbook(name):
+    from spells import wizard_spells, cleric_spells
+
+    spellbooks = {
+        "wizard_spells": wizard_spells,
+        "cleric_spells": cleric_spells,
+    }
+
+    return spellbooks.get(name, {})
 
 
 
