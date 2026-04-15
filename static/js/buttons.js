@@ -115,6 +115,27 @@ function openDice() {
 
 
 
+// Reset button
+document.addEventListener("DOMContentLoaded", () => {
+    const resetBtn = document.getElementById("reset-character");
+    if (!resetBtn) return;
+
+    resetBtn.addEventListener("click", () => {
+        fetch("/reset", {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = "/";  // send user back to start
+            }
+        });
+    });
+});
+
+
+
+
 // If the class is a spellcaster, reveal spellbook button.
 document.addEventListener("DOMContentLoaded", () => {
     const spellData = document.getElementById("spellcasting-data");
@@ -140,3 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     });
 });
+
+
+

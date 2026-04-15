@@ -693,7 +693,10 @@ def update_spellslots():
     return {"spell_slots_used": count}
 
 
-
+@app.route("/reset", methods=["POST"])
+def reset():
+    session.clear()  # wipes ALL session data
+    return {"success": True}
 
 if __name__ == "__main__":
     app.run()
