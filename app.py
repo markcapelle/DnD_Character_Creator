@@ -423,6 +423,7 @@ def build_character_sheet():
         "skills": skill_bonuses,
         "hit_die": class_data.get("hit_die"),
         "hit_dice_used": 0,
+        "death_rolls": 0,
         "max_hp": max_hp,
         "current_hp": max_hp,
         "primary_abilities": class_data.get("primary_abilities", []),
@@ -538,13 +539,13 @@ def modify_hp(action):
 
     return {"current_hp": current, "max_hp": max_hp}
 
-# Track the character's hit dice useage
+# Track the character's hit dice useage.
 @app.route("/hitdice/update", methods=["POST"])
 def update_hitdice():
     sheet = session.get("character_sheet", {})
 
     count = int(request.json.get("count", 0))
-    # clamp between 0 and 3 for now — or use sheet["level"] later
+    # clamp between 0 and 3 for now — can be scaled for levels
     count = max(0, min(count, 3))
 
     sheet["hit_dice_used"] = count
@@ -552,7 +553,18 @@ def update_hitdice():
 
     return {"hit_dice_used": count}
 
+# Track the character's death rolls.
+@app.route("/deathroll/update", methods=["POST"])
+def update_deathroll():
+    sheet = session.get("character_sheet", {})
 
+    count = int(request.json.get("count", 0))
+    count = max(0, min(count, 3))  # clamp 0–3 - max amount of death rolls is always 3.
+
+    sheet["death_rolls"] = count
+    session["character_sheet"] = sheet
+
+    return {"death_rolls": count}
 
 
 if __name__ == "__main__":

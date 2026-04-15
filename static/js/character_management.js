@@ -47,3 +47,42 @@ function updateHitDiceUI(count) {
         box.classList.toggle("active", index <= count);
     });
 }
+
+// Track user's death rolls
+document.addEventListener("DOMContentLoaded", () => {
+    // ----- DEATH ROLL TRACKER -----
+    const deathTracker = document.getElementById("deathroll-tracker");
+    const deathUsed = Number(deathTracker.dataset.used);
+
+    updateDeathRollUI(deathUsed);
+
+    document.querySelectorAll(".deathroll-box").forEach(box => {
+        box.addEventListener("click", () => {
+            const index = Number(box.dataset.index);
+
+            let newCount = index;
+
+            if (box.classList.contains("active")) {
+                newCount = index - 1;
+            }
+
+            fetch("/deathroll/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ count: newCount })
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateDeathRollUI(data.death_rolls);
+                deathTracker.dataset.used = data.death_rolls;
+            });
+        });
+    });
+});
+
+function updateDeathRollUI(count) {
+    document.querySelectorAll(".deathroll-box").forEach(box => {
+        const index = Number(box.dataset.index);
+        box.classList.toggle("active", index <= count);
+    });
+}

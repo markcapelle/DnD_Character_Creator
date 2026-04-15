@@ -24,10 +24,17 @@
         </div>
 
         <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
-            <label>Hit Dice Used:</label>
+            <h3>Hit Dice Used:</h3>
             <div class="hitdie-box" data-index="1"></div>
             <div class="hitdie-box" data-index="2"></div>
             <div class="hitdie-box" data-index="3"></div>
+        </div>
+
+        <div id="deathroll-tracker" data-used="{{ sheet.death_rolls | default(0) }}">
+            <h3>Death Rolls:</h3>
+            <div class="deathroll-box" data-index="1"></div>
+            <div class="deathroll-box" data-index="2"></div>
+            <div class="deathroll-box" data-index="3"></div>
         </div>
     </div>
 

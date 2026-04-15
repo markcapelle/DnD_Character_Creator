@@ -29,3 +29,22 @@
 .hitdie-box.active {
     background-color: #4a90e2;
 }
+
+#deathroll-tracker {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.deathroll-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid black;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.deathroll-box.active {
+    background-color: crimson;
+}
