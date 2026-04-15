@@ -67,6 +67,16 @@
     <p><strong>Hit Die:</strong> d{{ sheet.hit_die }}</p>
     <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
     <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
+
+    {% if sheet.spellcaster %}
+    <div id="spellcasting-stats">
+        <h3>Spellcasting</h3>
+
+        <p><strong>Spellcasting Ability:</strong> {{ sheet.spellcasting_ability|capitalize }}</p>
+        <p><strong>Spell Save DC:</strong> {{ sheet.spell_save_dc }}</p>
+        <p><strong>Spell Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
+    </div>
+    {% endif %}
     
     {% if sheet.max_spell_slots %}
     <div id="spellslots-section">

@@ -496,6 +496,19 @@ def build_character_sheet():
     con_mod = character.modifiers.get("constitution", 0)
     max_hp = hit_die + con_mod
 
+    # Spellcasting stats, if any
+    if class_data.get("spellcaster"):
+        spell_ability = class_data["primary_abilities"][0]  # e.g. "intelligence"
+        spell_mod = character.modifiers.get(spell_ability, 0)
+
+        spell_save_dc = 8 + character.proficiency + spell_mod
+        spell_attack_bonus = character.proficiency + spell_mod
+    else:
+        spell_ability = None
+        spell_mod = None
+        spell_save_dc = None
+        spell_attack_bonus = None
+
     character_sheet = {
         "race": character.race,
         "race_name": race_data.get("name", ""),
@@ -505,6 +518,9 @@ def build_character_sheet():
         "spellbook": class_data.get("spellbook", None),
         "spell_slots_used": 0,
         "max_spell_slots": class_data.get("spell_slots", None),
+        "spellcasting_ability": spell_ability,
+        "spell_save_dc": spell_save_dc,
+        "spell_attack_bonus": spell_attack_bonus,
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
