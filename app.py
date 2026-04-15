@@ -164,7 +164,8 @@ CLASSES = {
             "survival"
         ],
         "spellcaster": False,
-        "spellbook": None
+        "spellbook": None,
+        "spell_slots": None
     },
 
     "rogue": {
@@ -188,7 +189,8 @@ CLASSES = {
             "stealth"
         ],
         "spellcaster": False,
-        "spellbook": None
+        "spellbook": None,
+        "spell_slots": None
     },
 
     "wizard": {
@@ -207,7 +209,8 @@ CLASSES = {
             "religion",
         ],
         "spellcaster": True,
-        "spellbook": "WIZARD_SPELLBOOK"
+        "spellbook": "WIZARD_SPELLBOOK",
+        "spell_slots": 2
     }
 }
 
@@ -500,6 +503,8 @@ def build_character_sheet():
         "class_name": class_data.get("name", ""),
         "spellcaster": class_data.get("spellcaster", False),
         "spellbook": class_data.get("spellbook", None),
+        "spell_slots_used": 0,
+        "max_spell_slots": class_data.get("spell_slots", None),
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
@@ -649,8 +654,27 @@ def update_deathroll():
 
     return {"death_rolls": count}
 
+# Track spellcaster's spell slots
+@app.route("/spellslots/update", methods=["POST"])
+def update_spellslots():
+    sheet = session.get("character_sheet", {})
 
+    max_slots = sheet.get("max_spell_slots")
+    if max_slots is None:
+        return {"error": "Class has no spell slots"}, 400
 
+    try:
+        count = int(request.json.get("count"))
+    except (TypeError, ValueError):
+        return {"error": "Invalid count"}, 400
+
+    # clamp
+    count = max(0, min(count, max_slots))
+
+    sheet["spell_slots_used"] = count
+    session["character_sheet"] = sheet
+
+    return {"spell_slots_used": count}
 
 
 

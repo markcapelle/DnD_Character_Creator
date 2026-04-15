@@ -68,6 +68,22 @@
     <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
     <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
     
+    {% if sheet.max_spell_slots %}
+    <div id="spellslots-section">
+        <h3>Spell Slots</h3>
+
+        <div class="spellslot-row">
+            {% for i in range(sheet.max_spell_slots) %}
+                <div class="spellslot-box" data-index="{{ i + 1 }}"></div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="spellcasting-data"
+        data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}">
+    </div>
+
     <div id="spellcasting-data"
         data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
         data-spellbook="{{ sheet.spellbook }}"

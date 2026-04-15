@@ -87,3 +87,38 @@ function updateDeathRollUI(count) {
     });
 }
 
+// Track the player's spell slots if the class is a spellcaster.
+document.addEventListener("DOMContentLoaded", () => {
+    const spellSlotsSection = document.getElementById("spellslots-section");
+    if (!spellSlotsSection) return;
+
+    const boxes = spellSlotsSection.querySelectorAll(".spellslot-box");
+
+    boxes.forEach(box => {
+        box.addEventListener("click", () => {
+            const index = Number(box.dataset.index);
+
+            let newCount = index;
+            if (box.classList.contains("active")) {
+                newCount = index - 1;
+            }
+
+            fetch("/spellslots/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ count: newCount })
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateSpellSlotUI(data.spell_slots_used);
+            });
+        });
+    });
+});
+
+function updateSpellSlotUI(count) {
+    document.querySelectorAll(".spellslot-box").forEach(box => {
+        const index = Number(box.dataset.index);
+        box.classList.toggle("active", index <= count);
+    });
+}

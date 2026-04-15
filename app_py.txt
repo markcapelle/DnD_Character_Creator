@@ -164,7 +164,8 @@ CLASSES = {
             "survival"
         ],
         "spellcaster": False,
-        "spellbook": None
+        "spellbook": None,
+        "spell_slots": None
     },
 
     "rogue": {
@@ -188,7 +189,8 @@ CLASSES = {
             "stealth"
         ],
         "spellcaster": False,
-        "spellbook": None
+        "spellbook": None,
+        "spell_slots": None
     },
 
     "wizard": {
@@ -207,7 +209,8 @@ CLASSES = {
             "religion",
         ],
         "spellcaster": True,
-        "spellbook": "WIZARD_SPELLBOOK"
+        "spellbook": "WIZARD_SPELLBOOK",
+        "spell_slots": {1: 2}
     }
 }
 
@@ -362,7 +365,15 @@ def home():
 def dice():
     return render_template("dice.html")
 
+@app.route("/spellbook")
+def spellbook_page():
+    sheet = session.get("character_sheet", {})
+    spellbook_name = sheet.get("spellbook")
 
+    # Load the correct spellbook dict
+    spellbook = globals().get(spellbook_name, {})
+
+    return render_template("spellbook.html", spellbook=spellbook)
 
 
 # =======================
@@ -490,8 +501,12 @@ def build_character_sheet():
         "race_name": race_data.get("name", ""),
         "class": character.char_class,
         "class_name": class_data.get("name", ""),
-        "spellcaster": class_data.get["spellcaster"],
-        "spellbook": class_data["spellbook"],
+        "spellcaster": class_data.get("spellcaster", False),
+        "spellbook": class_data.get("spellbook", None),
+        "spell_slots": {
+            1: 0  # level 1 spell slots used
+        },
+        "max_spell_slots": class_data.get("spell_slots", {}),
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
@@ -641,19 +656,36 @@ def update_deathroll():
 
     return {"death_rolls": count}
 
+# Track spellcaster's spell slots
+@app.route("/spellslots/update", methods=["POST"])
+def update_spellslots():
+    sheet = session.get("character_sheet", {})
 
+    # Safely parse integers
+    try:
+        level = int(request.json.get("level"))
+        count = int(request.json.get("count"))
+    except (TypeError, ValueError):
+        return {"error": "Invalid spell slot data"}, 400
 
-@app.route("/spellbook/<name>")
-def get_spellbook(name):
-    from spells import wizard_spells, cleric_spells
+    # Ensure max slots is an integer
+    max_slots_raw = sheet.get("max_spell_slots", {}).get(level, 0)
+    try:
+        max_slots = int(max_slots_raw)
+    except (TypeError, ValueError):
+        max_slots = 0
 
-    spellbooks = {
-        "wizard_spells": wizard_spells,
-        "cleric_spells": cleric_spells,
-    }
+    # Clamp usage
+    count = max(0, min(count, max_slots))
 
-    return spellbooks.get(name, {})
+    # Save
+    if "spell_slots" not in sheet:
+        sheet["spell_slots"] = {}
 
+    sheet["spell_slots"][level] = count
+    session["character_sheet"] = sheet
+
+    return {"spell_slots": sheet["spell_slots"]}
 
 
 
