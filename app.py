@@ -105,10 +105,12 @@ class Character:
 RACES = {
     "human": {
         "name": "Human",
-        "description": "Human description.",
+        "description": "In the reckonings of most worlds, humans are the youngest of the common races, late to arrive on the world scene and short-lived in comparison to dwarves, elves and dragons."
+            " Perhaps it is because of their shorter lives that they strive to achieve as much as they can in the years they are given."
+            " Or maybe they feel they have something to prove to the elder races, and that's why they build their mighty empires on the foundation of conquest and trade."
+            " Whatever drives them, humans are the innovators, the achievers, and the pioneers of the worlds.",
         "traits": [
-            "Trait#1: traitdescription.",
-            "Trait#2: traitdescription."
+            "Fast Learners: Human ability scores all increase by 1.",
         ],
         "modifiers": {
             "strength": 1,
@@ -122,10 +124,15 @@ RACES = {
 
     "elf": {
         "name": "Elf",
-        "description": "Elf description.",
+        "description": "Elves are a magical people of otherworldly grace, living in the world but not entirely part of it."
+            " They live in places of ethereal beauty, in the midst of ancient forests or in silvery spires glittering with faerie lights,"
+                " where soft music drifts through the air and gentle fragrances waft on the breeze."
+            " Elves love nature and magic, art and artistry, music and poetry, and the good things of the world.",
         "traits": [
-            "Trait#1: traitdescription.",
-            "Trait#2: traitdescription."
+            "Darkvision: Elves are accustomed to twilit forests and the night sky. They have superior vision in dark and dim conditions."
+                " You can see in dim light within 60 feet of you as if it were bright light. You can't discern colour in darkness, only shades of grey.",
+            "Fey Ancestry: Elves have advantage on saving throws agiasnt being charmed, and magic cannot put them to sleep.",
+            "Trance: Elves do not need to sleep, and can instead meditate for 4 hours a day. Meditating gives the same benefit as 8 hours of sleep."
         ],
         "modifiers": {
             "dexterity": 2
@@ -134,10 +141,14 @@ RACES = {
 
     "dwarf": {
         "name": "Dwarf",
-        "description": "dwarf description.",
+        "description": "Kingdoms rich in ancient grandeur, halls carved into the roots of mountains, the echoing of picks and hammers in deep mines and blazing forges,"
+            " a commitment to clan and tradition, and a burning hatred of goblins and orcs - these common threads unite all dwarves.",
         "traits": [
-            "Trait#1: traitdescription.",
-            "Trait#2: traitdescription."
+            "Darkvision: Accustomed to life underground, Dwarves have superior vision in dark and dim conditions."
+                " They can see in dim light within 60 feet ahead as if it were bright light, and in darkness as if it were dim light."
+                " They cannot discern colour in darkness, only shades of grey.",
+            "Dwarven Resilience: Dwarves have advangate on saving throws agaisnt poison, and have a resistance agiasnt poison damage.",
+            "Dwarven Combat Training: Movement speed is not reduced by wearing heavy armour and dwarves have proficiency with battleaxes, handaxes, light hammers and warhammers."
         ],
         "modifiers": {
             "constitution": 2
@@ -148,7 +159,7 @@ RACES = {
 CLASSES = {
     "fighter": {
         "name": "Fighter",
-        "description": "Masters of martial combat, skilled with weapons and armor.",
+        "description": "Masters of martial combat, skilled with weapons and armour.",
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
         "hit_die": 10,
@@ -238,37 +249,37 @@ SKILLS = {
 BACKGROUNDS = {
     "acolyte": {
         "name": "Acolyte",
-        "description": "Acolyte description.",
+        "description": "The Acolyte has spent years in service to a temple or sacred order, shaped by ritual, study, and unwavering devotion to a higher power.",
         "proficiencies": ["insight", "religion"]
     },
 
     "criminal": {
         "name": "Criminal",
-        "description": "Criminal description.",
+        "description": "The Criminal has lived a life shaped by shadows, deception, and illicit dealings, relying on quick wits and a talent for slipping past notice.",
         "proficiencies": ["deception", "stealth"]
     },
 
     "folk_hero": {
         "name": "Folk Hero",
-        "description": "Folk Hero description.",
+        "description": "The Folk Hero has risen from humble origins, earning the admiration of common people through acts of bravery, compassion, and defiance against injustice.",
         "proficiencies": ["animal_handling", "survival"]
     },
 
     "noble": {
         "name": "Noble",
-        "description": "Noble description.",
+        "description": "The Noble was raised among wealth and influence, shaped by formal education, courtly expectations, and the responsibilities of a distinguished lineage.",
         "proficiencies": ["history", "persuasion"]
     },
 
     "sage": {
         "name": "Sage",
-        "description": "Sage description.",
+        "description": "The Sage has spent years in study and research, driven by an insatiable curiosity and a deep desire to uncover the truths of the world.",
         "proficiencies": ["arcana", "history"]
     },
 
     "soldier": {
         "name": "Soldier",
-        "description": "Soldier description.",
+        "description": "The Soldier has been forged by discipline, drill, and the harsh realities of battle, serving in organized ranks and learning the demands of command and obedience alike.",
         "proficiencies": ["athletics", "intimidation"]
     }
 }
@@ -280,7 +291,8 @@ WIZARD_SPELLBOOK = {
     "cantrips": [
         {
             "name": "Fire Bolt",
-            "description": "You hurl a mote of fire at a creature or object within range.",
+            "description": "You hurl a mote of fire at a creature or object within range. You make a ranged spell attack agiasnt the target."
+                " On a hit, the target takes 1d10 fire damage. A flammable object hit by this spell ignites if it isn't beign worn or carried.",
             "casting_time": "1 action",
             "range": "120 feet",
             "components": "V, S",
@@ -288,7 +300,7 @@ WIZARD_SPELLBOOK = {
         },
         {
             "name": "Mage Hand",
-            "description": "A spectral, floating hand appears at a point you choose within range.",
+            "description": "A spectral, floating hand appears at a point you choose within range. The hand can't attack, activate magic items, or carry more than 10 pounds.",
             "casting_time": "1 action",
             "range": "30 feet",
             "components": "V, S",
@@ -298,7 +310,8 @@ WIZARD_SPELLBOOK = {
     "level_1": [
         {
             "name": "Magic Missile",
-            "description": "You create three glowing darts of magical force.",
+            "description": "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range."
+                " A dart deals 1d4 + 1 force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.",
             "casting_time": "1 action",
             "range": "120 feet",
             "components": "V, S",
@@ -306,7 +319,8 @@ WIZARD_SPELLBOOK = {
         },
         {
             "name": "Shield",
-            "description": "An invisible barrier of magical force appears and protects you.",
+            "description": "An invisible barrier of magical force appears and protects you."
+                " Until the start of your next turn, you have a +5 bonus to AC, including agiasnt the triggering attack, and you take no damage from magic missile.",
             "casting_time": "1 reaction",
             "range": "Self",
             "components": "V, S",
