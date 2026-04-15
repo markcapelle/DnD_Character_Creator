@@ -160,6 +160,9 @@ CLASSES = {
     "fighter": {
         "name": "Fighter",
         "description": "Masters of martial combat, skilled with weapons and armour.",
+        "class_features": [
+            "Second Wind: The fighter can use a bonus action to regain hit points equal to 1d10 + fighter level. Once the feature is used a short or long rest must be taken before it can be used again."
+        ],
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
         "hit_die": 10,
@@ -182,6 +185,9 @@ CLASSES = {
     "rogue": {
         "name": "Rogue",
         "description": "Stealthy experts who excel at precision, agility, and cunning.",
+        "class_features": [
+            "Sneak Attack: Once per turn the rogue can deal an extra 1d6 damage to one creature they hit with an attack if you have advantage on the attack roll. The attack must use a finess or ranged weapon."
+        ],
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
         "hit_die": 8,
@@ -207,6 +213,9 @@ CLASSES = {
     "wizard": {
         "name": "Wizard",
         "description": "Scholars of arcane magic who rely on intellect and study.",
+        "class_features": [
+            "Spellcaster: Using their spellbook, the wizard can cast spells."
+        ],
         "primary_abilities": ["intelligence"],
         "saving_throws": ["intelligence", "wisdom"],
         "hit_die": 6,
