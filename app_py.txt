@@ -210,7 +210,7 @@ CLASSES = {
         ],
         "spellcaster": True,
         "spellbook": "WIZARD_SPELLBOOK",
-        "spell_slots": {1: 2}
+        "spell_slots": 2
     }
 }
 
@@ -496,6 +496,19 @@ def build_character_sheet():
     con_mod = character.modifiers.get("constitution", 0)
     max_hp = hit_die + con_mod
 
+    # Spellcasting stats, if any
+    if class_data.get("spellcaster"):
+        spell_ability = class_data["primary_abilities"][0]  # e.g. "intelligence"
+        spell_mod = character.modifiers.get(spell_ability, 0)
+
+        spell_save_dc = 8 + character.proficiency + spell_mod
+        spell_attack_bonus = character.proficiency + spell_mod
+    else:
+        spell_ability = None
+        spell_mod = None
+        spell_save_dc = None
+        spell_attack_bonus = None
+
     character_sheet = {
         "race": character.race,
         "race_name": race_data.get("name", ""),
@@ -503,10 +516,11 @@ def build_character_sheet():
         "class_name": class_data.get("name", ""),
         "spellcaster": class_data.get("spellcaster", False),
         "spellbook": class_data.get("spellbook", None),
-        "spell_slots": {
-            1: 0  # level 1 spell slots used
-        },
-        "max_spell_slots": class_data.get("spell_slots", {}),
+        "spell_slots_used": 0,
+        "max_spell_slots": class_data.get("spell_slots", None),
+        "spellcasting_ability": spell_ability,
+        "spell_save_dc": spell_save_dc,
+        "spell_attack_bonus": spell_attack_bonus,
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
@@ -661,33 +675,35 @@ def update_deathroll():
 def update_spellslots():
     sheet = session.get("character_sheet", {})
 
-    # Safely parse integers
+    max_slots = sheet.get("max_spell_slots")
+    if max_slots is None:
+        return {"error": "Class has no spell slots"}, 400
+
     try:
-        level = int(request.json.get("level"))
         count = int(request.json.get("count"))
     except (TypeError, ValueError):
-        return {"error": "Invalid spell slot data"}, 400
+        return {"error": "Invalid count"}, 400
 
-    # Ensure max slots is an integer
-    max_slots_raw = sheet.get("max_spell_slots", {}).get(level, 0)
-    try:
-        max_slots = int(max_slots_raw)
-    except (TypeError, ValueError):
-        max_slots = 0
-
-    # Clamp usage
+    # clamp
     count = max(0, min(count, max_slots))
 
-    # Save
-    if "spell_slots" not in sheet:
-        sheet["spell_slots"] = {}
-
-    sheet["spell_slots"][level] = count
+    sheet["spell_slots_used"] = count
     session["character_sheet"] = sheet
 
-    return {"spell_slots": sheet["spell_slots"]}
+    return {"spell_slots_used": count}
 
 
+@app.route("/reset", methods=["POST"])
+def reset():
+    session.clear()  # wipes ALL session data
+    return {"success": True}
+
+
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 
 if __name__ == "__main__":
