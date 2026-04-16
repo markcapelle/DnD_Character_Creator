@@ -1,5 +1,6 @@
 // Increase-Decrease HP.
 function changeHP(direction) {
+    playScribble();
     fetch(`/hp/${direction}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
@@ -41,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateHitDiceUI(count) {
+    playScribble();
     document.querySelectorAll(".hitdie-box").forEach(box => {
         const index = Number(box.dataset.index);
         box.classList.toggle("active", index <= count);
@@ -117,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ----- UI UPDATE FUNCTION -----
     function updateDeathUI(type, count) {
+        playScribble();
         document.querySelectorAll(`.deathroll-box.${type}`).forEach(box => {
             const index = Number(box.dataset.index);
             box.classList.toggle("active", index <= count);
@@ -155,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function updateSpellSlotUI(count) {
+    playScribble();
     document.querySelectorAll(".spellslot-box").forEach(box => {
         const index = Number(box.dataset.index);
         box.classList.toggle("active", index <= count);

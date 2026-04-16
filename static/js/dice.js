@@ -1,4 +1,5 @@
 function rollDice(sides) {
+    playDiceRoll();
     const count = Number(document.getElementById("dice-count").value);
     const results = [];
 

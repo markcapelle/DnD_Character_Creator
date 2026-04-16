@@ -7,6 +7,7 @@ function updateUI(data) {   // Update stats on the page without refreshing
     }
 
 function change(ability, action) {
+    playScribble();
     fetch("/" + action, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
