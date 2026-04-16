@@ -129,7 +129,8 @@ RACES = {
             " Elves love nature and magic, art and artistry, music and poetry, and the good things of the world.",
         "traits": [
             "Darkvision: Elves are accustomed to twilit forests and the night sky. They have superior vision in dark and dim conditions."
-                " You can see in dim light within 60 feet of you as if it were bright light. You can't discern colour in darkness, only shades of grey.",
+                " They can see in dim light within 60 feet ahead as if it were bright light, and in darkness as if it were dim light."
+                " They cannot discern colour in darkness, only shades of grey.",
             "Fey Ancestry: Elves have advantage on saving throws agiasnt being charmed, and magic cannot put them to sleep.",
             "Trance: Elves do not need to sleep, and can instead meditate for 4 hours a day. Meditating gives the same benefit as 8 hours of sleep."
         ],
@@ -146,7 +147,7 @@ RACES = {
             "Darkvision: Accustomed to life underground, Dwarves have superior vision in dark and dim conditions."
                 " They can see in dim light within 60 feet ahead as if it were bright light, and in darkness as if it were dim light."
                 " They cannot discern colour in darkness, only shades of grey.",
-            "Dwarven Resilience: Dwarves have advangate on saving throws agaisnt poison, and have a resistance agiasnt poison damage.",
+            "Dwarven Resilience: Dwarves have advantage on saving throws against poison, and have a resistance against poison damage.",
             "Dwarven Combat Training: Movement speed is not reduced by wearing heavy armour and dwarves have proficiency with battleaxes, handaxes, light hammers and warhammers."
         ],
         "modifiers": {
@@ -201,7 +202,8 @@ CLASSES = {
         "name": "Rogue",
         "description": "Rogues are stealthy experts who excel at precision, agility, and cunning.",
         "class_features": [
-            "Sneak Attack: Once per turn the rogue can deal an extra 1d6 damage to one creature they hit with an attack if you have advantage on the attack roll. The attack must use a finess or ranged weapon."
+            "Sneak Attack: Once per turn the rogue can deal an extra 1d6 damage to one creature they hit with an attack if you have advantage on the attack roll."
+            " The attack must use a finesse or ranged weapon."
         ],
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
@@ -255,7 +257,7 @@ CLASSES = {
         "description": "Clerics are divine spellcasters who channel the power of their deity to heal allies, smite foes, and shape the battlefield through sacred magic.",
         "class_features": [
             "Spellcaster: Calling upon their faith, a cleric can cast spells.",
-            "Turn Undead: Presenting their holy symbol, a cleric causes every undead within 30 feet to flee on a failed wisdom"
+            "Turn Undead: Presenting their holy symbol, a cleric causes every undead within 30 feet to flee on a failed wisdom save."
         ],
         "primary_abilities": ["wisdom"],
         "saving_throws": ["charisma", "wisdom"],
