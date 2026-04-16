@@ -108,7 +108,7 @@ function openDice() {
     window.open(
         "/dice", 
         "diceWindow",
-        "width=400,height=500,resizable=yes"
+        "width=400,height=600,resizable=yes"
     );
 }
 
