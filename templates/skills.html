@@ -6,62 +6,90 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
     <title>Skills</title>
 </head>
 <body>
-    <h1>Select Skill Proficiency</h1>
-    
-    <p><strong>Race:</strong> {{ sheet.race_name }}</p>
-    <p><strong>Class:</strong> {{ sheet.class_name }}</p>
 
-    <hr>
+<div class="character-sheet">
 
-    <div id="skills-container"
-        data-max-choices="{{ max_choices }}"
-        data-allowed-skills='{{ allowed_skills | tojson }}'>
+    <!-- HEADER -->
+    <div class="sheet-header">
+        <div class="identity">
+            <h1>Select Skill Proficiency</h1>
+        </div>
+    </div>
 
-        {% set abilities = ["strength","dexterity","constitution","intelligence","wisdom","charisma"] %}
+    <!-- BODY -->
+    <div class="sheet-body">
 
-        {% for ability in abilities %}
-            <h2>{{ ability|capitalize }} (Mod:
-                {% set mod = sheet.ability_modifiers[ability] %}
-                {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %}
-            )</h2>
+        <!-- LEFT SIDE: CHARACTER META -->
+        <div class="details">
 
-            <ul>
-            {% for skill, skill_ability in skills.items() %}
-                {% if skill_ability == ability %}
-                    <li>
-                        <label>
-                            <input type="checkbox"
-                                class="skill-checkbox"
-                                value="{{ skill }}">
-                            {{ skill.replace("_", " ")|capitalize }}
-                            —
-                            {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %}
-                        </label>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            </ul>
+            <div class="box">
+                <h3>Character Info</h3>
+                <p><strong>Race:</strong> {{ sheet.race_name }}</p>
+                <p><strong>Class:</strong> {{ sheet.class_name }}</p>
+                <p><strong>Proficiency Bonus:</strong> +{{ sheet.proficiency }}</p>
+            </div>
 
-        {% endfor %}
+        </div>
+
+        <!-- RIGHT SIDE: SKILLS -->
+        <div class="box" style="flex: 2 1 400px;">
+
+            <h3>Choose Your Skills</h3>
+
+            <p>You may choose <strong>{{ max_choices }}</strong> skills from your class list.</p>
+
+            <div id="skills-container"
+                data-max-choices="{{ max_choices }}"
+                data-allowed-skills='{{ allowed_skills | tojson }}'>
+
+                {% set abilities = ["strength","dexterity","constitution","intelligence","wisdom","charisma"] %}
+
+                {% for ability in abilities %}
+                    {% set mod = sheet.ability_modifiers[ability] %}
+
+                    <h2 style="margin-top: 1rem;">
+                        {{ ability|capitalize }}
+                        (Mod: {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %})
+                    </h2>
+
+                    <ul>
+                    {% for skill, skill_ability in skills.items() %}
+                        {% if skill_ability == ability %}
+                            <li>
+                                <label>
+                                    <input type="checkbox"
+                                        class="skill-checkbox"
+                                        value="{{ skill }}">
+                                    {{ skill.replace("_", " ")|capitalize }}
+                                    —
+                                    {% if mod >= 0 %}+{{ mod }}{% else %}{{ mod }}{% endif %}
+                                </label>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
 
     </div>
-    
 
-    <button id="skills-back-button">Back</button>
-    <button id="skills-next-button" disabled class="next-disabled">Next</button>
+    <!-- BUTTONS -->
+    <div style="text-align:center; margin-top:1rem;">
+        <button id="skills-back-button">Back</button>
+        <button id="skills-next-button" disabled class="next-disabled">Next</button>
+    </div>
 
-    <script src="{{ url_for('static', filename='js/skills.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+</div>
+
+<script src="{{ url_for('static', filename='js/skills.js') }}"></script>
+<script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
 
 </body>
 </html>
