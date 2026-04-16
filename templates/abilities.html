@@ -6,66 +6,88 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
     <title>Character Creation</title>
 </head>
 <body>
-    <h1>Create Your Character</h1>
 
-    <h2>Select Race</h2>
-    <label for="race">Race:</label>
-    <select id="race" onchange="selectRace(this.value)">
-        <option value="">-- choose race --</option>
-        {% for key, race in races.items() %}
-            <option value="{{ key }}">{{ race.name }}</option>
-        {% endfor %}
-    </select>
+<div class="character-sheet">
 
-    <p id="race-info"></p>
+    <!-- HEADER -->
+    <div class="sheet-header">
+        <div class="identity">
+            <h1>Create Your Character</h1>
+        </div>
+    </div>
 
+    <div class="sheet-body">
 
-    <h2>Select Class</h2>
-    <label for="class">Class:</label>
-    <select id="class" onchange="selectClass(this.value)">
-        <option value="">-- choose class --</option>
-        {% for key, cls in classes.items() %}
-            <option value="{{ key }}">{{ cls.name }}</option>
-        {% endfor %}
-    </select>
+        <!-- LEFT SIDE: RACE + CLASS -->
+        <div class="details">
 
-    <p id="class-info"></p>
+            <div class="box">
+                <h3>Select Race</h3>
+                <label for="race">Race:</label>
+                <select id="race" onchange="selectRace(this.value)">
+                    <option value="">-- choose race --</option>
+                    {% for key, race in races.items() %}
+                        <option value="{{ key }}">{{ race.name }}</option>
+                    {% endfor %}
+                </select>
 
-    <h2>Set Abilities</h2>
-    <p>Allocate skillpoints to Abilities</p>
-    <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
+                <p id="race-info"></p>
+            </div>
 
-    <ul>
-        {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+            <div class="box">
+                <h3>Select Class</h3>
+                <label for="class">Class:</label>
+                <select id="class" onchange="selectClass(this.value)">
+                    <option value="">-- choose class --</option>
+                    {% for key, cls in classes.items() %}
+                        <option value="{{ key }}">{{ cls.name }}</option>
+                    {% endfor %}
+                </select>
 
-        {% for ability in order %}
-            <li>
-                {{ ability }}:
-                <span id="{{ ability }}">{{ character.abilities[ability] }}</span>
+                <p id="class-info"></p>
+            </div>
 
-                <span id="{{ ability }}-mod" class="race-mod"></span>
+        </div>
 
+        <!-- RIGHT SIDE: ABILITIES -->
+        <div class="box">
+            <h3>Set Abilities</h3>
+            <p>Allocate skillpoints to Abilities</p>
+            <p>Points remaining: <span id="points">{{ character.points_pool }}</span></p>
+
+            {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
+            
+            {% for ability in order %}
+            <div class="ability">
+                <strong>{{ ability|capitalize }}</strong>
+                
+                <div class="score" id="{{ ability }}">
+                    {{ character.abilities[ability] }}
+                </div>
+                
+                <div class="mod">
+                    <span id="{{ ability }}-mod" class="race-mod"></span>
+                </div>
+                
                 <button onclick="change('{{ ability }}', 'increase')">+</button>
                 <button onclick="change('{{ ability }}', 'decrease')">-</button>
-            </li>
-        {% endfor %}
-    </ul>
-    
-    <button id="abilities-next-button" disabled class="next-disabled">Next</button>
+            </div>
+            {% endfor %}
+        </div>
 
+    </div>
 
-    <script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
+    <div style="text-align:center; margin-top:1rem;">
+        <button id="abilities-next-button" disabled class="next-disabled">Next</button>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/character_build.js') }}"></script>
+<script src="{{ url_for('static', filename='js/buttons.js') }}"></script>
 
 </body>
 </html>
