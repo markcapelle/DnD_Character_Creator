@@ -387,11 +387,11 @@ def home():
         sheet = {}
     return render_template("index.html", sheet=sheet)
 
-@app.route("/dice")
+@app.route("/dice") #Render dicebox window
 def dice():
     return render_template("dice.html")
 
-@app.route("/spellbook")
+@app.route("/spellbook") #Render spellbook window
 def spellbook_page():
     sheet = session.get("character_sheet", {})
     spellbook_name = sheet.get("spellbook")
@@ -611,9 +611,6 @@ def set_skills():
     character["skills"] = skills
     session["character"] = character
 
-    print("DEBUG SET_SKILLS:", character["skills"])  # TEMP DEBUG
-    print("RECEIVED FROM FRONTEND:", selected_skills)
-
     return {"success": True}
 
 
@@ -650,8 +647,6 @@ def set_background():
         char = char.to_dict()  # normalize for session storage
 
     session["character"] = char
-
-    print("SET_BACKGROUND:", get_character())
 
     return jsonify({"success": True})
 
