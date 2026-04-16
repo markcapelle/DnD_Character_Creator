@@ -49,42 +49,81 @@ function updateHitDiceUI(count) {
 
 // Track user's death rolls
 document.addEventListener("DOMContentLoaded", () => {
-    // ----- DEATH ROLL TRACKER -----
-    const deathTracker = document.getElementById("deathroll-tracker");
-    const deathUsed = Number(deathTracker.dataset.used);
 
-    updateDeathRollUI(deathUsed);
+    // ----- SUCCESS TRACKER -----
+    const successTracker = document.getElementById("deathroll-success");
+    const successUsed = Number(successTracker.dataset.used);
+    updateDeathUI("success", successUsed);
 
-    document.querySelectorAll(".deathroll-box").forEach(box => {
+    document.querySelectorAll(".deathroll-box.success").forEach(box => {
         box.addEventListener("click", () => {
             const index = Number(box.dataset.index);
 
+            // If this box is active, clicking it reduces count
+            const current = Number(successTracker.dataset.used);
             let newCount = index;
 
             if (box.classList.contains("active")) {
                 newCount = index - 1;
             }
 
+            const delta = newCount - current;
+
             fetch("/deathroll/update", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ count: newCount })
+                body: JSON.stringify({ type: "success", delta })
             })
             .then(res => res.json())
             .then(data => {
-                updateDeathRollUI(data.death_rolls);
-                deathTracker.dataset.used = data.death_rolls;
+                successTracker.dataset.used = data.success;
+                updateDeathUI("success", data.success);
             });
         });
     });
-});
 
-function updateDeathRollUI(count) {
-    document.querySelectorAll(".deathroll-box").forEach(box => {
-        const index = Number(box.dataset.index);
-        box.classList.toggle("active", index <= count);
+
+    // ----- FAIL TRACKER -----
+    const failTracker = document.getElementById("deathroll-fail");
+    const failUsed = Number(failTracker.dataset.used);
+    updateDeathUI("fail", failUsed);
+
+    document.querySelectorAll(".deathroll-box.fail").forEach(box => {
+        box.addEventListener("click", () => {
+            const index = Number(box.dataset.index);
+
+            const current = Number(failTracker.dataset.used);
+            let newCount = index;
+
+            if (box.classList.contains("active")) {
+                newCount = index - 1;
+            }
+
+            const delta = newCount - current;
+
+            fetch("/deathroll/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: "fail", delta })
+            })
+            .then(res => res.json())
+            .then(data => {
+                failTracker.dataset.used = data.fails;
+                updateDeathUI("fail", data.fails);
+            });
+        });
     });
-}
+
+
+    // ----- UI UPDATE FUNCTION -----
+    function updateDeathUI(type, count) {
+        document.querySelectorAll(`.deathroll-box.${type}`).forEach(box => {
+            const index = Number(box.dataset.index);
+            box.classList.toggle("active", index <= count);
+        });
+    }
+
+});
 
 // Track the player's spell slots if the class is a spellcaster.
 document.addEventListener("DOMContentLoaded", () => {

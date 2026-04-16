@@ -1,3 +1,7 @@
+{% macro show_mod(value) %}
+    {{ "+" ~ value if value >= 0 else value }}
+{% endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,12 +21,12 @@
 </head>
 <body>
 
-        <div class="character-sheet">
+    <div class="character-sheet">
 
         <!-- Header -->
         <header class="sheet-header">
             <div class="identity">
-                <h1>{{ sheet.character_name or "Character Sheet" }}</h1>
+                <h1>Character Sheet</h1>
                 <p>{{ sheet.race_name }} · {{ sheet.class_name }}</p>
             </div>
         </header>
@@ -34,12 +38,15 @@
             <div class="top-refs">
                 <div class="box">
                     <h3>Initiative</h3>
+                    <p>{{ show_mod(sheet.ability_modifiers.dexterity) }}</p>
                 </div>
                 <div class="box">
                     <h3>Passive Perception</h3>
+                    <p>{{ 10 + sheet.ability_modifiers.wisdom }}</p>
                 </div>
                 <div class="box">
                     <h3>Proficiency</h3>
+                    <p>{{ show_mod(sheet.proficiency) }}</p>
                 </div>
                 <div class="box">
                     <!-- dice button -->
@@ -54,7 +61,7 @@
                     <strong>{{ ability|upper }}</strong>
                     <span class="score">{{ score }}</span>
                     <span class="mod">
-                        {{ sheet.ability_modifiers[ability] }}
+                        {{ show_mod(sheet.ability_modifiers[ability]) }}
                     </span>
                 </div>
                 {% endfor %}
@@ -71,24 +78,27 @@
                     </div>
                     <div>
                         <h3>Hit Die:</h3>
-                        <span>{{ sheet.hit_die }}</span>
+                        <h4>{{ sheet.hit_die }}</h4>
                     </div>
+                    <h3>Hit Dice Used:</h3>
                     <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
-                        <h3>Hit Dice Used:</h3>
                         <div class="hitdie-box" data-index="1"></div>
                     </div>
                 </div>
 
                 <div class="box">
-                    <h3>Death Rolls:</h3>
-                    <div>
+                    <h3>Death Saves:</h3>
+                    <div id="deathroll-success" data-used="{{ sheet.death_rolls_success }}">
                         <p>Successes:</p>
+                        <div class="deathroll-box success" data-index="1"></div>
+                        <div class="deathroll-box success" data-index="2"></div>
+                        <div class="deathroll-box success" data-index="3"></div>
                     </div>
-                    <div id="deathroll-tracker" data-used="{{ sheet.death_rolls | default(0) }}">
+                    <div id="deathroll-fail" data-used="{{ sheet.death_rolls_fails }}">
                         <p>Fails:</p>
-                        <div class="deathroll-box" data-index="1"></div>
-                        <div class="deathroll-box" data-index="2"></div>
-                        <div class="deathroll-box" data-index="3"></div>
+                        <div class="deathroll-box fail" data-index="1"></div>
+                        <div class="deathroll-box fail" data-index="2"></div>
+                        <div class="deathroll-box fail" data-index="3"></div>
                     </div>
                 </div>
 
@@ -98,7 +108,7 @@
                         {% for skill, bonus in sheet.skills.items() %}
                             <li>
                                 <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
-                                {{ bonus }}
+                                {{ show_mod(bonus) }}
                                 {% if sheet.skill_proficiencies[skill] %}(Proficient){% endif %}
                             </li>
                         {% endfor %}
@@ -137,13 +147,17 @@
                 <p><strong>Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
 
                 <div id="spellcasting-data"
-                    data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}">
-                </div>
-
-                <div id="spellcasting-data"
                     data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
                     data-spellbook="{{ sheet.spellbook }}"
                     data-primary="{{ sheet.primary_abilities }}">
+                </div>
+                <div id="spellslots-section">
+                    <h3>Spell Slots</h3>
+                    <div class="spellslot-row">
+                        {% for i in range(sheet.max_spell_slots) %}
+                            <div class="spellslot-box" data-index="{{ i + 1 }}"></div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <button id="open-spellbook" style="display:none;">Spellbook</button>
             </section>

@@ -165,7 +165,8 @@ CLASSES = {
         ],
         "primary_abilities": ["strength", "constitution"],
         "saving_throws": ["strength", "constitution"],
-        "hit_die": 10,
+        "hit_points": 10,
+        "hit_die": "d10",
         "skill_choices": 2,
         "skill_list": [
             "acrobatics",
@@ -190,7 +191,8 @@ CLASSES = {
         ],
         "primary_abilities": ["dexterity", "intelligence"],
         "saving_throws": ["dexterity", "intelligence"],
-        "hit_die": 8,
+        "hit_points": 8,
+        "hit_die": "d8",
         "skill_choices": 4,
         "skill_list": [
             "acrobatics",
@@ -218,7 +220,8 @@ CLASSES = {
         ],
         "primary_abilities": ["intelligence"],
         "saving_throws": ["intelligence", "wisdom"],
-        "hit_die": 6,
+        "hit_points": 6,
+        "hit_die": "d6",
         "skill_choices": 2,
         "skill_list": [
             "arcana",
@@ -464,7 +467,7 @@ def select_class():
         "class_features": class_data.get("class_features", ""),
         "primary_abilities": class_data.get("primary_abilities", []),
         "saving_throws": class_data.get("saving_throws", []),
-        "hit_die": class_data.get("hit_die", None),
+        "hit_die": class_data.get("hit_die", ""),
         "spellcaster": class_data.get("spellcaster", False),
         "spellbook": class_data.get("spellbook", None)
     })
@@ -516,9 +519,9 @@ def build_character_sheet():
     class_data = CLASSES.get(character.char_class, {})
 
     # Calculate hit points
-    hit_die = class_data.get("hit_die", 0)
+    hit_points = class_data.get("hit_points", 0)
     con_mod = character.modifiers.get("constitution", 0)
-    max_hp = hit_die + con_mod
+    max_hp = hit_points + con_mod
 
     # Spellcasting stats, if any
     if class_data.get("spellcaster"):
@@ -546,13 +549,15 @@ def build_character_sheet():
         "spellcasting_ability": spell_ability,
         "spell_save_dc": spell_save_dc,
         "spell_attack_bonus": spell_attack_bonus,
+        "proficiency": character.proficiency,
         "abilities": final_abilities,
         "ability_modifiers": character.modifiers,
         "skill_proficiencies": character.skills,
         "skills": skill_bonuses,
-        "hit_die": class_data.get("hit_die"),
+        "hit_die": class_data.get("hit_die", ""),
         "hit_dice_used": 0,
-        "death_rolls": 0,
+        "death_rolls_success": 0,
+        "death_rolls_fails": 0,
         "max_hp": max_hp,
         "current_hp": max_hp,
         "primary_abilities": class_data.get("primary_abilities", []),
@@ -682,18 +687,30 @@ def update_hitdice():
 
     return {"hit_dice_used": count}
 
-# Track the character's death rolls.
+# Track the character's death rolls (successes and fails).
 @app.route("/deathroll/update", methods=["POST"])
 def update_deathroll():
     sheet = session.get("character_sheet", {})
 
-    count = int(request.json.get("count", 0))
-    count = max(0, min(count, 3))  # clamp 0–3 - max amount of death rolls is always 3.
+    roll_type = request.json.get("type")      # "success" or "fail"
+    delta = int(request.json.get("delta", 0)) # +1 or -1
 
-    sheet["death_rolls"] = count
+    if roll_type not in ("success", "fail"):
+        return {"error": "Invalid roll type"}, 400
+
+    key = "death_rolls_success" if roll_type == "success" else "death_rolls_fails"
+
+    # Update and clamp 0–3
+    current = sheet.get(key, 0)
+    current = max(0, min(3, current + delta))
+    sheet[key] = current
+
     session["character_sheet"] = sheet
 
-    return {"death_rolls": count}
+    return {
+        "success": sheet.get("death_rolls_success", 0),
+        "fails": sheet.get("death_rolls_fails", 0)
+    }
 
 # Track spellcaster's spell slots
 @app.route("/spellslots/update", methods=["POST"])

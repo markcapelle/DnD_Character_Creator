@@ -30,7 +30,8 @@
     background-color: green;
 }
 
-#deathroll-tracker {
+#deathroll-success,
+#deathroll-fail {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -45,7 +46,11 @@
     border-radius: 4px;
 }
 
-.deathroll-box.active {
+.deathroll-box.success.active {
+    background-color: green;
+}
+
+.deathroll-box.fail.active {
     background-color: crimson;
 }
 
@@ -91,7 +96,14 @@
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 8px;
-    background: #f8f8f8;
+    
+    background:
+    linear-gradient(
+      #f7f1e1,
+      #efe3c5
+    );
+
+    background-blend-mode: multiply;
 }
 
 
@@ -223,7 +235,7 @@ body {
 }
 
 .box h3 {
-  margin-top: 0;
+  margin-top: 0.5rem;
   border-bottom: 1px solid #3a2f1d;
 }
 
