@@ -7,7 +7,7 @@ app.secret_key = "dev-key"
 # Character class
 class Character:
     def __init__(self):
-        self.points_pool = 1 #for testing set to one. set 27 in production
+        self.points_pool = 24
         self.proficiency = 2 #Proficiency modifier, starts at +2
         
         self.race = None
@@ -15,13 +15,12 @@ class Character:
         self.background = None
 
         self.abilities = {
-            #Testing / set to 0 in production
-            "strength": 10,
-            "dexterity": 10,
-            "constitution": 10,
-            "intelligence": 10,
-            "wisdom": 10,
-            "charisma": 10
+            "strength": 8,
+            "dexterity": 8,
+            "constitution": 8,
+            "intelligence": 8,
+            "wisdom": 8,
+            "charisma": 8
         }
 
         self.skills = {
@@ -51,7 +50,7 @@ class Character:
             self.points_pool -= 1 #Reduce available points by 1
     
     def decrease(self, ability):
-        if self.abilities[ability] > 0: #If selected ability is not 0
+        if self.abilities[ability] > 8: #If selected ability is not 8 (minimum)
             self.abilities[ability] -= 1 #Reduce selected ability by 1
             self.points_pool += 1 #Increase available points by 1
 
