@@ -16,140 +16,160 @@
     <title>Character Sheet</title>
 </head>
 <body>
-    <h1>Character Sheet Debug</h1>
 
-    <button id="dice-button" onclick="openDice()">Dice</button>
+        <div class="character-sheet">
 
-    <h2>Race & Class</h2>
-    <p><strong>Race:</strong> {{ sheet.race_name }}</p>
-    <p><strong>Class:</strong> {{ sheet.class_name }}</p>
-    
-    <div>
-        <div class="hp-controls">
-            <h3>Hit Points</h3> 
-            <button onclick="changeHP('down')">-</button>
-            <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
-            <button onclick="changeHP('up')">+</button>
+        <!-- Header -->
+        <header class="sheet-header">
+            <div class="identity">
+                <h1>{{ sheet.character_name or "Character Sheet" }}</h1>
+                <p>{{ sheet.race_name }} · {{ sheet.class_name }}</p>
+            </div>
+        </header>
+
+        <!-- Main body -->
+        <div class="sheet-body">
+
+            <!-- TOP: Refs -->
+            <div class="top-refs">
+                <div class="box">
+                    <h3>Initiative</h3>
+                </div>
+                <div class="box">
+                    <h3>Passive Perception</h3>
+                </div>
+                <div class="box">
+                    <h3>Proficiency</h3>
+                </div>
+                <div class="box">
+                    <!-- dice button -->
+                    <button id="dice-button" onclick="openDice()">Dice</button>
+                </div>
+            </div>
+
+            <!-- LEFT: Abilities -->
+            <section class="abilities">
+                {% for ability, score in sheet.abilities.items() %}
+                <div class="ability">
+                    <strong>{{ ability|upper }}</strong>
+                    <span class="score">{{ score }}</span>
+                    <span class="mod">
+                        {{ sheet.ability_modifiers[ability] }}
+                    </span>
+                </div>
+                {% endfor %}
+            </section>
+
+            <!-- RIGHT: Details -->
+            <section class="details">
+                <div class="box">
+                    <h3>Hit Points:</h3>
+                    <div class="hp-controls">
+                        <button onclick="changeHP('down')">-</button>
+                        <span id="hp-display">{{ sheet.current_hp }} / {{ sheet.max_hp }}</span>
+                        <button onclick="changeHP('up')">+</button>
+                    </div>
+                    <div>
+                        <h3>Hit Die:</h3>
+                        <span>{{ sheet.hit_die }}</span>
+                    </div>
+                    <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
+                        <h3>Hit Dice Used:</h3>
+                        <div class="hitdie-box" data-index="1"></div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>Death Rolls:</h3>
+                    <div>
+                        <p>Successes:</p>
+                    </div>
+                    <div id="deathroll-tracker" data-used="{{ sheet.death_rolls | default(0) }}">
+                        <p>Fails:</p>
+                        <div class="deathroll-box" data-index="1"></div>
+                        <div class="deathroll-box" data-index="2"></div>
+                        <div class="deathroll-box" data-index="3"></div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3>Skills</h3>
+                    <ul>
+                        {% for skill, bonus in sheet.skills.items() %}
+                            <li>
+                                <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
+                                {{ bonus }}
+                                {% if sheet.skill_proficiencies[skill] %}(Proficient){% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
         </div>
 
-        <div id="hitdice-tracker" data-used="{{ sheet.hit_dice_used | default(0) }}">
-            <h3>Hit Dice Used:</h3>
-            <div class="hitdie-box" data-index="1"></div>
-            <div class="hitdie-box" data-index="2"></div>
-            <div class="hitdie-box" data-index="3"></div>
-        </div>
+        <!-- Race features -->
+        <section class="box">
+            <h3>Race Features:</h3>
+            <ul>
+                {% for trait in sheet.traits %}
+                <li>{{ trait }}</li>
+                {% endfor %}
+            </ul>
+        </section>
 
-        <div id="deathroll-tracker" data-used="{{ sheet.death_rolls | default(0) }}">
-            <h3>Death Rolls:</h3>
-            <div class="deathroll-box" data-index="1"></div>
-            <div class="deathroll-box" data-index="2"></div>
-            <div class="deathroll-box" data-index="3"></div>
-        </div>
-    </div>
-
-    <h2>Abilities (Final Scores)</h2>
-    <ul>
-        {% for ability, score in sheet.abilities.items() %}
-            <li><strong>{{ ability|capitalize }}:</strong> {{ score }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Ability Modifiers</h2>
-    <ul>
-        {% for ability, mod in sheet.ability_modifiers.items() %}
-            <li><strong>{{ ability|capitalize }} Mod:</strong> {{ mod }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Race Traits</h2>
-    <ul>
-        {% for trait in sheet.traits %}
-            <li>{{ trait }}</li>
-        {% endfor %}
-    </ul>
-
-
-    
-    <h2>Class Info</h2>
-    <p><strong>Hit Die:</strong> d{{ sheet.hit_die }}</p>
-    <p><strong>Primary Abilities:</strong> {{ sheet.primary_abilities|join(", ") }}</p>
-    <p><strong>Saving Throws:</strong> {{ sheet.saving_throws|join(", ") }}</p>
-
-    <div id="class-features">
-        <h3>Class Features</h3>
-        <ul>
-            {% for feature in sheet.class_features %}
+        <!-- Class features -->
+        <section class="box">
+            <h3>Class Features</h3>
+            <ul>
+                {% for feature in sheet.class_features %}
                 <li>{{ feature }}</li>
-            {% endfor %}
-        </ul>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Spellcasting -->
+        {% if sheet.spellcaster %}
+            <section class="box">
+                <h3>Spellcasting</h3>
+                <p><strong>Ability:</strong> {{ sheet.spellcasting_ability|capitalize }}</p>
+                <p><strong>Save DC:</strong> {{ sheet.spell_save_dc }}</p>
+                <p><strong>Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
+
+                <div id="spellcasting-data"
+                    data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}">
+                </div>
+
+                <div id="spellcasting-data"
+                    data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
+                    data-spellbook="{{ sheet.spellbook }}"
+                    data-primary="{{ sheet.primary_abilities }}">
+                </div>
+                <button id="open-spellbook" style="display:none;">Spellbook</button>
+            </section>
+        {% endif %}
+
+        <!-- Descriptions -->
+        <section class="box">
+            <h3>Descriptions</h3>
+            <p><strong>Race:</strong> {{ sheet.description.race }}</p>
+            <p><strong>Class:</strong> {{ sheet.description.class }}</p>
+        </section>
+
+        <!-- Background -->
+        <section class="box">
+            <h3>Background</h3>
+            <p><strong>{{ sheet.background_name }}</strong></p>
+            <p>{{ sheet.background_description }}</p>
+            <ul>
+                {% for prof in sheet.background_proficiencies %}
+                <li>{{ prof.replace("_", " ")|capitalize }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
     </div>
 
-
-    {% if sheet.spellcaster %}
-    <div id="spellcasting-stats">
-        <h3>Spellcasting</h3>
-
-        <p><strong>Spellcasting Ability:</strong> {{ sheet.spellcasting_ability|capitalize }}</p>
-        <p><strong>Spell Save DC:</strong> {{ sheet.spell_save_dc }}</p>
-        <p><strong>Spell Attack Bonus:</strong> +{{ sheet.spell_attack_bonus }}</p>
-    </div>
-    {% endif %}
-    
-    {% if sheet.max_spell_slots %}
-    <div id="spellslots-section">
-        <h3>Spell Slots</h3>
-
-        <div class="spellslot-row">
-            {% for i in range(sheet.max_spell_slots) %}
-                <div class="spellslot-box" data-index="{{ i + 1 }}"></div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <div id="spellcasting-data"
-        data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}">
-    </div>
-
-    <div id="spellcasting-data"
-        data-spellcaster="{{ 'True' if sheet.spellcaster else 'False' }}"
-        data-spellbook="{{ sheet.spellbook }}"
-        data-primary="{{ sheet.primary_abilities }}">
-    </div>
-    <button id="open-spellbook" style="display:none;">Spellbook</button>
-
-
-
-
-    <h2>Descriptions</h2>
-    <p><strong>Race Description:</strong> {{ sheet.description.race }}</p>
-    <p><strong>Class Description:</strong> {{ sheet.description.class }}</p>
-
-    <h2>Skills</h2>
-    <ul>
-        {% for skill, bonus in sheet.skills.items() %}
-            <li>
-                <strong>{{ skill.replace("_", " ")|capitalize }}:</strong>
-                {{ bonus }}
-                {% if sheet.skill_proficiencies[skill] %}
-                    (Proficient)
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-
-
-
-    <h2>Background</h2>
-    <p><strong>Background:</strong> {{ sheet.background_name }}</p>
-    <p><strong>Description:</strong> {{ sheet.background_description }}</p>
-
-    <h3>Background Proficiencies</h3>
-    <ul>
-        {% for prof in sheet.background_proficiencies %}
-            <li>{{ prof.replace("_", " ")|capitalize }}</li>
-        {% endfor %}
-    </ul>
 
 
     <button id="reset-character">Reset Character</button>
