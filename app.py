@@ -153,13 +153,28 @@ RACES = {
         "modifiers": {
             "constitution": 2
         }
+    },
+
+    "dragonborn": {
+        "name": "Dragonborn",
+        "description": "Born of dragons, as their name proclaims, the dragonborn walk proudly through a world that greets them with fearful incomprehension."
+            " Shaped by draconic gods or the dragons themselves, dragonborn originally hatched from dragon eggs as a unique race, combining the best attributes of dragons and humanoids."
+            " Some dragonborn are faithful servants to true dragons, others form the ranks of soldiers in great wars, and still others find themselves adrift, with no clear calling in life.",
+        "traits": [
+            "Damage Resistance: A dragonborn is resistant to fire damage.",
+            "Fire Breath: Dragonborn can breathe fire in a 5 by 30 foot line. Targets in its path must make a saving throw vs 8 + Con + Proficiency. A failed save deals 2d6 fire damage. A successful save deals half damage."
+        ],
+        "modifiers": {
+            "strength": 2,
+            "charisma": 1
+        }
     }
 }
 
 CLASSES = {
     "fighter": {
         "name": "Fighter",
-        "description": "Masters of martial combat, skilled with weapons and armour.",
+        "description": "Fighters are masters of martial combat, skilled with weapons and armour.",
         "class_features": [
             "Second Wind: The fighter can use a bonus action to regain hit points equal to 1d10 + fighter level. Once the feature is used a short or long rest must be taken before it can be used again."
         ],
@@ -185,7 +200,7 @@ CLASSES = {
 
     "rogue": {
         "name": "Rogue",
-        "description": "Stealthy experts who excel at precision, agility, and cunning.",
+        "description": "Rogues are stealthy experts who excel at precision, agility, and cunning.",
         "class_features": [
             "Sneak Attack: Once per turn the rogue can deal an extra 1d6 damage to one creature they hit with an attack if you have advantage on the attack roll. The attack must use a finess or ranged weapon."
         ],
@@ -214,7 +229,7 @@ CLASSES = {
 
     "wizard": {
         "name": "Wizard",
-        "description": "Scholars of arcane magic who rely on intellect and study.",
+        "description": "Wizards are scholars of arcane magic who rely on intellect and study.",
         "class_features": [
             "Spellcaster: Using their spellbook, the wizard can cast spells."
         ],
@@ -233,6 +248,30 @@ CLASSES = {
         ],
         "spellcaster": True,
         "spellbook": "WIZARD_SPELLBOOK",
+        "spell_slots": 2
+    },
+
+    "cleric": {
+        "name": "Cleric",
+        "description": "Clerics are divine spellcasters who channel the power of their deity to heal allies, smite foes, and shape the battlefield through sacred magic.",
+        "class_features": [
+            "Spellcaster: Calling upon their faith, a cleric can cast spells.",
+            "Turn Undead: Presenting their holy symbol, a cleric causes every undead within 30 feet to flee on a failed wisdom"
+        ],
+        "primary_abilities": ["wisdom"],
+        "saving_throws": ["charisma", "wisdom"],
+        "hit_points": 8,
+        "hit_die": "d8",
+        "skill_choices": 2,
+        "skill_list": [
+            "history",
+            "insight",
+            "medicine",
+            "persuasion",
+            "religion",
+        ],
+        "spellcaster": True,
+        "spellbook": "CLERIC_SPELLBOOK",
         "spell_slots": 2
     }
 }
@@ -317,6 +356,14 @@ WIZARD_SPELLBOOK = {
             "range": "30 feet",
             "components": "V, S",
             "duration": "1 minute"
+        },
+        {
+            "name": "Light",
+            "description": "You touch one object that is no larger than 10 feet in any dimension. Until the spell ends, the object sheds bright light in a 20-foot radius and dim light for an additional 20 feet.",
+            "casting_time": "1 action",
+            "range": "Touch",
+            "components": "V, M",
+            "duration": "1 hour"
         }
     ],
     "level_1": [
@@ -341,7 +388,52 @@ WIZARD_SPELLBOOK = {
     ]
 }
 
-
+CLERIC_SPELLBOOK = {
+    "cantrips": [
+        {
+            "name": "Spare the Dying",
+            "description": "You touch a living creature that has 0 hit points. The creature becomes stable. This spell has no effect on undead or constructs.",
+            "casting_time": "1 action",
+            "range": "Touch",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        },
+        {
+            "name": "Light",
+            "description": "You touch one object that is no larger than 10 feet in any dimension. Until the spell ends, the object sheds bright light in a 20-foot radius and dim light for an additional 20 feet.",
+            "casting_time": "1 action",
+            "range": "Touch",
+            "components": "V, M",
+            "duration": "1 hour"
+        },
+        {
+            "name": "Sacred Flame",
+            "description": "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a dexterity saving throw or take 1d8 radiant damage. The target gains no benefit from taking cover.",
+            "casting_time": "1 action",
+            "range": "60 feet",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        }
+    ],
+    "level_1": [
+        {
+            "name": "Bless",
+            "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.",
+            "casting_time": "1 action",
+            "range": "30 feet",
+            "components": "V, S, M",
+            "duration": "Concentration, up to 1 minute"
+        },
+        {
+            "name": "Cure Wounds",
+            "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs.",
+            "casting_time": "1 action",
+            "range": "Touch",
+            "components": "V, S",
+            "duration": "Instantaneous"
+        }
+    ]
+}
 
 def get_character():
     if "character" not in session:
@@ -525,7 +617,7 @@ def build_character_sheet():
 
     # Spellcasting stats, if any
     if class_data.get("spellcaster"):
-        spell_ability = class_data["primary_abilities"][0]  # e.g. "intelligence"
+        spell_ability = class_data["primary_abilities"][0]  # e.g. intelligence for wizard, wisdom for cleric
         spell_mod = character.modifiers.get(spell_ability, 0)
 
         spell_save_dc = 8 + character.proficiency + spell_mod
