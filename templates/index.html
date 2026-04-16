@@ -55,11 +55,16 @@
             </div>
 
             <!-- LEFT: Abilities -->
+            {% set order = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"] %}
             <section class="abilities">
-                {% for ability, score in sheet.abilities.items() %}
+                {% for ability in order %}
                 <div class="ability">
                     <strong>{{ ability|upper }}</strong>
-                    <span class="score">{{ score }}</span>
+
+                    <span class="score">
+                        {{ sheet.abilities[ability] }}
+                    </span>
+
                     <span class="mod">
                         {{ show_mod(sheet.ability_modifiers[ability]) }}
                     </span>
